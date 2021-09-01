@@ -1,0 +1,29 @@
+{
+  "name": "wotsui-api",
+  "version": "0.0.1",
+  "description": "Various API for WotsUI framework",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "preversion": "tsc",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iamthewots/wotsui-api.git"
+  },
+  "keywords": [
+    "API",
+    "browser",
+    "util"
+  ],
+  "author": "Leonardo Scarfò",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iamthewots/wotsui-api/issues"
+  },
+  "homepage": "https://github.com/iamthewots/wotsui-api#readme",
+  "devDependencies": {
+    "typescript": "^4.4.2"
+  }
+}
