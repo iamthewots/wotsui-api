@@ -3,60 +3,24 @@ interface IntersectionHandlerOptions {
   toggleOpacity?: boolean;
   intersectionClass?: string;
   noIntersectionClass?: string;
-  onIntersection?: (entry: IntersectionObserverEntry) => any;
-  onNoIntersection?: (entry: IntersectionObserverEntry) => any;
+  intersectionHandler?: (entry: IntersectionObserverEntry) => any;
+  noIntersectionHandler?: (entry: IntersectionObserverEntry) => any;
 }
 
 export default class IntersectionHandler {
   _observer: IntersectionObserver;
-  _mainOptions: IntersectionHandlerOptions;
-  _options: Map<Element | number, IntersectionHandlerOptions>;
+  _default_options: IntersectionHandlerOptions;
+  _options_list: Map<Element, IntersectionHandlerOptions>;
 
-  constructor(threshold = 0.2, options: IntersectionHandlerOptions = {}) {
+  constructor(threshold = 0, options: { [props: string]: any }) {
     this._observer = new IntersectionObserver(
       this.observerCallback.bind(this),
       {
         threshold,
       }
     );
-    this._mainOptions = this.parseOptions(options);
-    this._options = new Map();
-  }
-
-  parseOptions(obj: { [prop: string]: any }): IntersectionHandlerOptions {
-    const options: IntersectionHandlerOptions = {};
-    if (typeof obj !== "object") {
-      return options;
-    }
-
-    options.observeOnce = !!obj.observeOnce;
-    options.toggleOpacity = !!obj.toggleOpacity;
-    if (typeof obj.intersectionClass === "string") {
-      options.intersectionClass = obj.intersectionClass;
-    }
-    if (typeof obj.noIntersectionClass === "string") {
-      options.noIntersectionClass = obj.noIntersectionClass;
-    }
-    if (typeof obj.onIntersection === "function") {
-      options.onIntersection = obj.onIntersection;
-    }
-    if (typeof obj.onNoIntersection === "function") {
-      options.onNoIntersection = obj.onNoIntersection;
-    }
-
-    return options;
-  }
-
-  mergeOptions(options: IntersectionHandlerOptions, el?: Element) {
-    if (el) {
-      const elOptions = this._options.get(el);
-      if (elOptions) {
-        return { ...elOptions, options };
-      } else {
-        return options;
-      }
-    }
-    return { ...this._mainOptions, ...options };
+    this._default_options = this.parseOptions(options);
+    this._options_list = new Map();
   }
 
   observerCallback(
@@ -69,22 +33,18 @@ export default class IntersectionHandler {
         entry.isIntersecting ? "intersection" : "nointersection"
       );
       el.dispatchEvent(e);
-      const options = this._options.get(el) || this._mainOptions;
-      this.applyOptions(el, options, entry.isIntersecting);
 
+      const opt = this._options_list.get(el) || this._default_options;
+      this.applyOptions(el, opt, entry.isIntersecting);
       if (entry.isIntersecting) {
-        if (options.onIntersection) {
-          options.onIntersection(entry);
-          if (options.observeOnce) {
-            observer.unobserve(el);
-          }
+        if (opt.intersectionHandler) {
+          opt.intersectionHandler(entry);
         }
-      }
-
-      if (!entry.isIntersecting) {
-        if (options.onNoIntersection) {
-          options.onNoIntersection(entry);
+        if (opt.observeOnce) {
+          observer.unobserve(el);
         }
+      } else if (opt.noIntersectionHandler) {
+        opt.noIntersectionHandler(entry);
       }
     });
   }
@@ -94,6 +54,9 @@ export default class IntersectionHandler {
     options: IntersectionHandlerOptions,
     isIntersecting: boolean
   ) {
+    if (!el || !options) {
+      return;
+    }
     if (options.toggleOpacity && el instanceof HTMLElement) {
       el.style.opacity = isIntersecting ? "initial" : "0";
     }
@@ -107,19 +70,69 @@ export default class IntersectionHandler {
       el.classList.add(classToAdd);
     }
     if (classToRemove) {
-      el.classList.add(classToRemove);
+      el.classList.remove(classToRemove);
     }
   }
 
-  observe(
-    el: Element,
-    options?: { [prop: string]: any },
-    mergeOptions?: boolean
-  ) {
+  parseOptions(obj: { [prop: string]: any }): IntersectionHandlerOptions {
+    const opt: IntersectionHandlerOptions = {};
+    if (!obj) {
+      return opt;
+    }
+
+    opt.observeOnce = !!obj.observeOnce;
+    opt.toggleOpacity = !!obj.toggleOpacity;
+    if (typeof obj.intersectionClass === "string") {
+      opt.intersectionClass = obj.intersectionClass;
+    }
+    if (typeof obj.noIntersectionClass === "string") {
+      opt.noIntersectionClass = obj.noIntersectionClass;
+    }
+    if (typeof obj.intersectionHandler === "function") {
+      opt.intersectionHandler = obj.intersectionHandler;
+    }
+    if (typeof obj.noIntersectionHandler === "function") {
+      opt.noIntersectionHandler = obj.noIntersectionHandler;
+    }
+    return opt;
+  }
+
+  observe(el: Element, options?: { [prop: string]: any }, merge?: boolean) {
     this._observer.observe(el);
+    if (!options) {
+      return;
+    }
+
+    const opt = this.parseOptions(options);
+    if (merge) {
+      this._options_list.set(el, { ...this._default_options, ...opt });
+    } else {
+      this._options_list.set(el, opt);
+    }
   }
 
   getOptions(el?: Element) {
-    return el ? this._options.get(el) : this._mainOptions;
+    if (el) {
+      return this._options_list.get(el);
+    }
+    return this._default_options;
+  }
+
+  setOptions(options: { [prop: string]: any }, merge?: boolean, el?: Element) {
+    const opt = this.parseOptions(options);
+    if (el) {
+      if (merge) {
+        const baseOpt = this._options_list.get(el) || this._default_options;
+        this._options_list.set(el, { ...baseOpt, ...opt });
+      } else {
+        this._options_list.set(el, opt);
+      }
+    } else {
+      if (merge) {
+        Object.assign(this._default_options, opt);
+      } else {
+        this._default_options = opt;
+      }
+    }
   }
 }
