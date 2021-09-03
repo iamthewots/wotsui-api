@@ -1,0 +1,18 @@
+.spacer {
+  height: 100vh;
+}
+
+.on-int {
+  background-color: burlywood;
+}
+
+.no-int {
+  background-color: antiquewhite;
+}
+
+p {
+  place-items: center;
+  display: grid;
+  height: 200px;
+  transition: background-color 1s ease-in-out, opacity 0.2s ease-in-out;
+}
