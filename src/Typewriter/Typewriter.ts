@@ -33,7 +33,16 @@ export default class Typewriter {
   observerCallback(
     entries: IntersectionObserverEntry[],
     observer: IntersectionObserver
-  ) {}
+  ) {
+    entries.forEach((entry) => {
+      const el = entry.target;
+      const options = this._options_list.get(el) || this._default_options;
+      if (entry.isIntersecting) {
+      }
+      if (!entry.isIntersecting) {
+      }
+    });
+  }
 
   parseOptions(obj: { [prop: string]: any }) {
     const opt: TypewriterOptions = {
