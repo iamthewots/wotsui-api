@@ -1,4 +1,4 @@
-interface IntersectionHandlerOptions {
+export interface IntersectionHandlerOptions {
   observeOnce?: boolean;
   toggleOpacity?: boolean;
   intersectionClass?: string;
@@ -7,12 +7,14 @@ interface IntersectionHandlerOptions {
   noIntersectionHandler?: (entry: IntersectionObserverEntry) => any;
 }
 
+type Options = { [prop: string]: any } | IntersectionHandlerOptions;
+
 export default class IntersectionHandler {
   _observer: IntersectionObserver;
   _default_options: IntersectionHandlerOptions;
   _options_list: Map<Element, IntersectionHandlerOptions>;
 
-  constructor(threshold = 0, options: { [props: string]: any }) {
+  constructor(threshold = 0, options: Options) {
     this._observer = new IntersectionObserver(
       this.observerCallback.bind(this),
       {
@@ -97,7 +99,7 @@ export default class IntersectionHandler {
     return opt;
   }
 
-  observe(el: Element, options?: { [prop: string]: any }, merge?: boolean) {
+  observe(el: Element, options?: Options, merge?: boolean) {
     this._observer.observe(el);
     if (!options) {
       return;
