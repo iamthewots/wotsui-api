@@ -18,11 +18,11 @@ export default class Typewriter {
   _options_list: Map<Element, TypewriterOptions>;
   _text_content: Map<Element, TypewriterTextData[]>;
 
-  constructor(threshold = 1, options: Options) {
+  constructor(options: Options) {
     this._observer = new IntersectionObserver(
       this.observerCallback.bind(this),
       {
-        threshold,
+        threshold: 0,
       }
     );
     this._default_options = this.parseOptions(options);
@@ -38,8 +38,13 @@ export default class Typewriter {
       const el = entry.target;
       const options = this._options_list.get(el) || this._default_options;
       if (entry.isIntersecting) {
+        this.writeText(el);
+        if (options.observeOnce) {
+          observer.unobserve(el);
+        }
       }
       if (!entry.isIntersecting) {
+        this.clearText(el);
       }
     });
   }
@@ -60,14 +65,18 @@ export default class Typewriter {
     return opt;
   }
 
-  registerElement(
-    el: Element,
-    options?: Options,
-    observe?: boolean,
-    clear?: boolean
-  ) {
-    const txt = this.extractText(el);
+  observe(el: Element, options?: Options, merge?: boolean) {
+    this._observer.observe(el);
+    const txt = this.extractText(el, true);
     this._text_content.set(el, txt);
+    if (options) {
+      const opt = this.parseOptions(options);
+      if (merge) {
+        this._options_list.set(el, { ...this._default_options, ...opt });
+      } else {
+        this._options_list.set(el, opt);
+      }
+    }
   }
 
   extractText(el: Element | Node, clear?: boolean) {
@@ -95,21 +104,10 @@ export default class Typewriter {
     this.extractText(el, true);
   }
 
-  restoreText(el: Element) {
-    const txt = this._text_content.get(el);
-    if (!txt) {
-      return;
-    }
-
-    txt.forEach((data) => {
-      const { node, textContent } = data;
-      node.textContent = textContent;
-    });
-  }
-
   async writeText(el: Element) {
     const options = this._options_list.get(el) || this._default_options;
     const txt = this._text_content.get(el);
+    console.log(txt);
     if (!txt) {
       return;
     }
