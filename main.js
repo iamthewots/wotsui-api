@@ -13,7 +13,7 @@ document.querySelectorAll("p").forEach((el) => {
 const twEl = document.getElementById("typewriter");
 
 const typewriter = new Typewriter(0, {
-  timePerChar: 15,
+  timePerChar: 50,
   punctuationMultiplier: 1,
   observeOnce: true
 });

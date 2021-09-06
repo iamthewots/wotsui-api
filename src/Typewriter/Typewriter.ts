@@ -1,58 +1,26 @@
-export interface TypewriterOptions {
+interface TypewriterOptions {
   timePerChar: number;
-  ignorePunctuation?: boolean;
-  punctuationMultiplier: number;
-  observeOnce?: boolean;
+  ignorePunctuation: boolean;
 }
+
+type Options = TypewriterOptions | { [prop: string]: any };
 
 interface TypewriterTextData {
   node: Node;
   textContent: string;
 }
 
-type Options = { [prop: string]: any } | TypewriterOptions;
-
 export default class Typewriter {
-  _observer: IntersectionObserver;
   _default_options: TypewriterOptions;
-  _options_list: Map<Element, TypewriterOptions>;
-  _text_content: Map<Element, TypewriterTextData[]>;
 
   constructor(options: Options) {
-    this._observer = new IntersectionObserver(
-      this.observerCallback.bind(this),
-      {
-        threshold: 0,
-      }
-    );
-    this._default_options = this.parseOptions(options);
-    this._options_list = new Map();
-    this._text_content = new Map();
+    this._default_options = this.parseOption(options);
   }
 
-  observerCallback(
-    entries: IntersectionObserverEntry[],
-    observer: IntersectionObserver
-  ) {
-    entries.forEach((entry) => {
-      const el = entry.target;
-      const options = this._options_list.get(el) || this._default_options;
-      if (entry.isIntersecting) {
-        this.writeText(el);
-        if (options.observeOnce) {
-          observer.unobserve(el);
-        }
-      }
-      if (!entry.isIntersecting) {
-        this.clearText(el);
-      }
-    });
-  }
-
-  parseOptions(obj: { [prop: string]: any }) {
+  parseOption(obj: Options) {
     const opt: TypewriterOptions = {
       timePerChar: 15,
-      punctuationMultiplier: 1,
+      ignorePunctuation: false,
     };
     if (typeof obj !== "object") {
       return opt;
@@ -63,20 +31,6 @@ export default class Typewriter {
       opt.timePerChar = obj.timePerChar;
     }
     return opt;
-  }
-
-  observe(el: Element, options?: Options, merge?: boolean) {
-    this._observer.observe(el);
-    const txt = this.extractText(el, true);
-    this._text_content.set(el, txt);
-    if (options) {
-      const opt = this.parseOptions(options);
-      if (merge) {
-        this._options_list.set(el, { ...this._default_options, ...opt });
-      } else {
-        this._options_list.set(el, opt);
-      }
-    }
   }
 
   extractText(el: Element | Node, clear?: boolean) {
@@ -100,51 +54,36 @@ export default class Typewriter {
     return txt;
   }
 
-  clearText(el: Element) {
-    this.extractText(el, true);
+  clear(el: Element) {
+    return this.extractText(el, true);
   }
 
-  async writeText(el: Element) {
-    const options = this._options_list.get(el) || this._default_options;
-    const txt = this._text_content.get(el);
-    console.log(txt);
+  async rewrite(src: Element | TypewriterTextData[], options: Options) {
+    const txt = this.parseTextSrc(src);
     if (!txt) {
-      return;
+      throw new Error("Invalid source");
     }
-    for (const data of txt) {
-      const { node, textContent } = data;
-      if (!textContent) {
-        continue;
-      }
-      for (const char of textContent) {
-        node.textContent += char;
-        const ttw = this.getCharTiming(char, options);
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(null);
-          }, ttw);
-        });
-      }
-    }
+    const opt = this.parseOption(options);
   }
 
-  getCharTiming(char: string, options: TypewriterOptions) {
-    if (options.ignorePunctuation) {
-      return options.timePerChar;
+  parseTextSrc(src: Element | TypewriterTextData[]) {
+    let txt: TypewriterTextData[] | undefined;
+    if (src instanceof Element) {
+      txt = this.extractText(src, true);
     }
-    if (char.match(/\W\D/gi)) {
-      const ttw = options.timePerChar * options.punctuationMultiplier;
-      if (",+=-@{}[]()".indexOf(char)) {
-        return ttw * 4;
-      }
-      if (":;".indexOf(char)) {
-        return ttw * 8;
-      }
-      if (".?!".indexOf(char)) {
-        return ttw * 16;
-      }
-      return ttw * 2;
+    if (Array.isArray(src) && src.length > 0) {
+      src.forEach((item) => {
+        if (typeof item !== "object") {
+          return;
+        }
+        if (!(item.node instanceof Element || item.node instanceof Node)) {
+          return;
+        }
+        if (typeof item.textContent !== "string") {
+          return;
+        }
+      });
     }
-    return options.timePerChar;
+    return txt;
   }
 }
