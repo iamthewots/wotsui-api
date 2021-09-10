@@ -3,21 +3,30 @@ interface TypewriterOptions {
   ignorePunctuation: boolean;
 }
 
-type Options = TypewriterOptions | { [prop: string]: any };
-
-interface TypewriterTextData {
+interface TypewriterElementData {
   node: Node;
   textContent: string;
 }
 
+type Options = TypewriterOptions | { [prop: string]: any };
+
 export default class Typewriter {
   _default_options: TypewriterOptions;
+  _elements_db: Map<
+    Element,
+    {
+      data: TypewriterElementData[];
+      length: number;
+      options?: TypewriterOptions;
+    }
+  >;
 
   constructor(options: Options) {
-    this._default_options = this.parseOption(options);
+    this._elements_db = new Map();
+    this._default_options = this.parseOptions(options);
   }
 
-  parseOption(obj: Options) {
+  parseOptions(obj: Options) {
     const opt: TypewriterOptions = {
       timePerChar: 15,
       ignorePunctuation: false,
@@ -33,14 +42,41 @@ export default class Typewriter {
     return opt;
   }
 
-  extractText(el: Element | Node, clear?: boolean) {
-    let txt: TypewriterTextData[] = [];
+  initElement(el: Element, options?: Options, merge?: boolean) {
+    if (!(el instanceof Element)) {
+      throw new Error("Invalid argument");
+    }
+    const elData = this.parseElementData(el);
+    let opt = this._default_options;
+    if (options) {
+      opt = this.parseOptions(options);
+      if (merge) {
+        opt = { ...this._default_options, ...opt };
+      }
+    }
+
+    let length = 0;
+    for (let data of elData) {
+      if (data.textContent) {
+        length += data.textContent.length;
+      }
+    }
+    
+    this._elements_db.set(el, {
+      data: elData,
+      length: 0,
+      options: opt,
+    });
+  }
+
+  parseElementData(el: Element | Node, clear?: boolean) {
+    let data: TypewriterElementData[] = [];
     el.childNodes.forEach((node) => {
       if (!node.textContent) {
-        return txt;
+        return data;
       }
       if (node.nodeType === 3) {
-        txt.push({
+        data.push({
           node,
           textContent: node.textContent,
         });
@@ -48,42 +84,57 @@ export default class Typewriter {
           node.textContent = "";
         }
       } else {
-        txt = txt.concat(this.extractText(node));
+        data = data.concat(this.parseElementData(node));
       }
     });
-    return txt;
+    return data;
   }
 
-  clear(el: Element) {
-    return this.extractText(el, true);
+  clearElement(el: Element) {
+    const data = this.parseElementData(el, true);
+    return data;
   }
 
-  async rewrite(src: Element | TypewriterTextData[], options: Options) {
-    const txt = this.parseTextSrc(src);
-    if (!txt) {
-      throw new Error("Invalid source");
+  async restoreElement(el: Element, emits?: number | number[]) {
+    const storedData = this._elements_db.get(el);
+    if (!storedData || !storedData.data) {
+      return;
     }
-    const opt = this.parseOption(options);
+    const data = storedData.data;
+    const options = storedData.options || this._default_options;
+    for (const d of data) {
+      const { node, textContent } = d;
+      if (!textContent) {
+        continue;
+      }
+      for (const char of textContent) {
+        node.textContent += char;
+        const timeToWait = this.getCharTimeToWait(char, options);
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(null);
+          }, timeToWait);
+        });
+      }
+    }
   }
 
-  parseTextSrc(src: Element | TypewriterTextData[]) {
-    let txt: TypewriterTextData[] | undefined;
-    if (src instanceof Element) {
-      txt = this.extractText(src, true);
+  getCharTimeToWait(char: string, options: Options) {
+    const tpc = options.timePerChar;
+    if (options.ignorePunctuation) {
+      return tpc;
     }
-    if (Array.isArray(src) && src.length > 0) {
-      src.forEach((item) => {
-        if (typeof item !== "object") {
-          return;
-        }
-        if (!(item.node instanceof Element || item.node instanceof Node)) {
-          return;
-        }
-        if (typeof item.textContent !== "string") {
-          return;
-        }
-      });
+    if (char.match(/\W\D/gi)) {
+      if (",+=-@{}[]()".indexOf(char)) {
+        return tpc * 4;
+      } else if (":;".indexOf(char)) {
+        return tpc * 8;
+      } else if (".?!".indexOf(char)) {
+        return tpc * 16;
+      } else {
+        return tpc * 2;
+      }
     }
-    return txt;
+    return tpc;
   }
 }
