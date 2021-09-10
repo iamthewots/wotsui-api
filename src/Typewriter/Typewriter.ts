@@ -28,7 +28,7 @@ export default class Typewriter {
 
   parseOptions(obj: Options) {
     const opt: TypewriterOptions = {
-      timePerChar: 15,
+      timePerChar: 25,
       ignorePunctuation: false,
     };
     if (typeof obj !== "object") {
@@ -46,7 +46,7 @@ export default class Typewriter {
     if (!(el instanceof Element)) {
       throw new Error("Invalid argument");
     }
-    const elData = this.parseElementData(el);
+    const elData = this.parseElementData(el, true);
     let opt = this._default_options;
     if (options) {
       opt = this.parseOptions(options);
@@ -54,17 +54,15 @@ export default class Typewriter {
         opt = { ...this._default_options, ...opt };
       }
     }
-
     let length = 0;
     for (let data of elData) {
       if (data.textContent) {
         length += data.textContent.length;
       }
     }
-    
     this._elements_db.set(el, {
       data: elData,
-      length: 0,
+      length,
       options: opt,
     });
   }
@@ -95,13 +93,18 @@ export default class Typewriter {
     return data;
   }
 
-  async restoreElement(el: Element, emits?: number | number[]) {
+  async restoreElement(el: Element, emitSteps?: number | number[]) {
+    let steps: number[] = [];
+    if (emitSteps) {
+      steps = this.parseEmitSteps(emitSteps);
+    }
     const storedData = this._elements_db.get(el);
     if (!storedData || !storedData.data) {
       return;
     }
-    const data = storedData.data;
+    const { data, length } = storedData;
     const options = storedData.options || this._default_options;
+    let charIndex = 0;
     for (const d of data) {
       const { node, textContent } = d;
       if (!textContent) {
@@ -115,6 +118,8 @@ export default class Typewriter {
             resolve(null);
           }, timeToWait);
         });
+        charIndex++;
+        this.emitPercentageEvent(el, charIndex, length, steps);
       }
     }
   }
@@ -124,17 +129,60 @@ export default class Typewriter {
     if (options.ignorePunctuation) {
       return tpc;
     }
-    if (char.match(/\W\D/gi)) {
-      if (",+=-@{}[]()".indexOf(char)) {
-        return tpc * 4;
-      } else if (":;".indexOf(char)) {
+    if (char === " ") {
+      return 0;
+    }
+    if (char.match(/\W/g)) {
+      if (char.match(/[\,\+\=\-\@\{\}\[\]\(\)]/)) {
+        console.log(char, "virgola");
         return tpc * 8;
-      } else if (".?!".indexOf(char)) {
+      }
+      if (char.match(/[:;]/)) {
         return tpc * 16;
-      } else {
-        return tpc * 2;
+      }
+      if (char.match(/[\.\?\!]/)) {
+        console.log(char, "punto");
+        return tpc * 32;
       }
     }
     return tpc;
+  }
+
+  parseEmitSteps(emitSteps: number | number[]) {
+    let steps: number[] = [];
+    if (emitSteps) {
+      if (Array.isArray(emitSteps)) {
+        steps = emitSteps;
+      }
+      if (typeof emitSteps === "number") {
+        steps.push(emitSteps);
+      }
+    }
+    if (steps.length > 0) {
+      steps = steps.sort().filter((n) => {
+        typeof n === "number" && (n >= 0 || n <= 100);
+      });
+    }
+    return steps;
+  }
+
+  emitPercentageEvent(
+    el: Element,
+    charIndex: number,
+    length: number,
+    emitSteps: number[]
+  ) {
+    if (emitSteps.length === 0) {
+      return;
+    }
+    const step = emitSteps[0];
+    const percent = Math.round((charIndex * 100) / length);
+    const errorMargin = Math.round(100 / length);
+    const delta = step - percent;
+    if (delta < errorMargin) {
+      const e = new CustomEvent(`${step}-percent`);
+      el.dispatchEvent(e);
+      emitSteps.shift();
+    }
   }
 }
