@@ -1,20 +1,12 @@
 import { IntersectionHandler, Typewriter } from "./dist/index.js";
 
-const handler = new IntersectionHandler(0.25, {
-  toggleOpacity: true,
-  intersectionClass: "on-int",
-  noIntersectionClass: "no-int",
-});
+const el = document.getElementById("typewriter");
 
-document.querySelectorAll("p").forEach((el) => {
-  handler.observe(el);
+const typewriter = new Typewriter({
+  timePerChar: 25,
+  ignorePunctuation: false,
 });
-
-const twEl = document.getElementById("typewriter");
-
-const typewriter = new Typewriter(0, {
-  timePerChar: 50,
-  punctuationMultiplier: 1,
-  observeOnce: true
-});
-typewriter.observe(twEl);
+typewriter.initElement(el);
+setTimeout(() => {
+  typewriter.restoreElement(el, [25, 100]);
+}, 1000);
