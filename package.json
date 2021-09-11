@@ -4,8 +4,9 @@
   "description": "Various API for WotsUI framework",
   "main": "dist/index.js",
   "files": [
-    "./dist/*"
+    "dist/*"
   ],
+  "types": "dist/*",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "preversion": "tsc",
