@@ -1,3 +1,6 @@
+import applyOptions from "./scripts/apply-options.js";
+import parseOptions from "./scripts/parse-options.js";
+
 export interface IntersectionHandlerOptions {
   observeOnce?: boolean;
   toggleOpacity?: boolean;
@@ -7,7 +10,7 @@ export interface IntersectionHandlerOptions {
   noIntersectionHandler?: (entry: IntersectionObserverEntry) => any;
 }
 
-type Options = { [prop: string]: any } | IntersectionHandlerOptions;
+export type Options = { [prop: string]: any } | IntersectionHandlerOptions;
 
 export default class IntersectionHandler {
   _observer: IntersectionObserver;
@@ -21,7 +24,7 @@ export default class IntersectionHandler {
         threshold,
       }
     );
-    this._default_options = this.parseOptions(options);
+    this._default_options = parseOptions(options);
     this._options_list = new Map();
   }
 
@@ -36,8 +39,8 @@ export default class IntersectionHandler {
       );
       el.dispatchEvent(e);
 
-      const opt = this._options_list.get(el) || this._default_options;
-      this.applyOptions(el, opt, entry.isIntersecting);
+      const opt = this.getOptions(el);
+      applyOptions(el, opt, entry.isIntersecting);
       if (entry.isIntersecting) {
         if (opt.intersectionHandler) {
           opt.intersectionHandler(entry);
@@ -51,90 +54,33 @@ export default class IntersectionHandler {
     });
   }
 
-  applyOptions(
-    el: Element,
-    options: IntersectionHandlerOptions,
-    isIntersecting: boolean
-  ) {
-    if (!el || !options) {
-      return;
-    }
-    if (options.toggleOpacity && el instanceof HTMLElement) {
-      el.style.opacity = isIntersecting ? "initial" : "0";
-    }
-    const classToAdd = isIntersecting
-      ? options.intersectionClass
-      : options.noIntersectionClass;
-    const classToRemove = isIntersecting
-      ? options.noIntersectionClass
-      : options.intersectionClass;
-    if (classToAdd) {
-      el.classList.add(classToAdd);
-    }
-    if (classToRemove) {
-      el.classList.remove(classToRemove);
-    }
-  }
-
-  parseOptions(obj: { [prop: string]: any }): IntersectionHandlerOptions {
-    const opt: IntersectionHandlerOptions = {};
-    if (!obj) {
-      return opt;
-    }
-
-    opt.observeOnce = !!obj.observeOnce;
-    opt.toggleOpacity = !!obj.toggleOpacity;
-    if (typeof obj.intersectionClass === "string") {
-      opt.intersectionClass = obj.intersectionClass;
-    }
-    if (typeof obj.noIntersectionClass === "string") {
-      opt.noIntersectionClass = obj.noIntersectionClass;
-    }
-    if (typeof obj.intersectionHandler === "function") {
-      opt.intersectionHandler = obj.intersectionHandler;
-    }
-    if (typeof obj.noIntersectionHandler === "function") {
-      opt.noIntersectionHandler = obj.noIntersectionHandler;
-    }
-    return opt;
-  }
-
-  observe(el: Element, options?: Options, merge?: boolean) {
+  observe(el: Element, options?: Options) {
     this._observer.observe(el);
     if (!options) {
       return;
     }
-
-    const opt = this.parseOptions(options);
-    if (merge) {
-      this._options_list.set(el, { ...this._default_options, ...opt });
-    } else {
+    if (options) {
+      const opt = parseOptions(options);
       this._options_list.set(el, opt);
     }
   }
 
   getOptions(el?: Element) {
     if (el) {
-      return this._options_list.get(el);
+      const opt = this._options_list.get(el);
+      if (opt) {
+        return { ...this._default_options, ...opt };
+      }
     }
     return this._default_options;
   }
 
-  setOptions(options: { [prop: string]: any }, merge?: boolean, el?: Element) {
-    const opt = this.parseOptions(options);
+  setOptions(options: { [prop: string]: any }, el?: Element) {
+    const opt = parseOptions(options);
     if (el) {
-      if (merge) {
-        const baseOpt = this._options_list.get(el) || this._default_options;
-        this._options_list.set(el, { ...baseOpt, ...opt });
-      } else {
-        this._options_list.set(el, opt);
-      }
+      this._options_list.set(el, opt);
     } else {
-      if (merge) {
-        Object.assign(this._default_options, opt);
-      } else {
-        this._default_options = opt;
-      }
+      this._default_options = { ...this._default_options, ...opt };
     }
   }
 }
