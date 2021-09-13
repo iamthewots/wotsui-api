@@ -5,3 +5,18 @@ body {
 .spacer {
   height: 100vh;
 }
+
+#intersection {
+  transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+  height: 400px;
+}
+
+.on-int {
+  background-color: blanchedalmond;
+  color: chocolate;
+}
+
+.no-int {
+  background-color: azure;
+  color: turquoise;
+}
