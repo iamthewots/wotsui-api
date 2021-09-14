@@ -1,8 +1,8 @@
-import { IntersectionHandlerOptions } from "../IntersectionHandler";
+import { Options } from "../types";
 
 export default function applyOptions(
   el: Element,
-  options: IntersectionHandlerOptions,
+  options: Options,
   isIntersecting: boolean
 ) {
   if (!el || !options) {

@@ -1,28 +1,11 @@
+import { Options, ElementData } from "./types";
 import parseElement from "./scripts/parse-element.js";
 import parseOptions from "./scripts/parse-options.js";
 import writeElement from "./scripts/write-element.js";
 
-export interface TypewriterOptions {
-  timePerChar: number;
-  ignorePunctuation: boolean;
-}
-
-export interface TypewriterElementData {
-  options?: TypewriterOptions;
-  length: number;
-  textData: TypewriterElementTextData[];
-}
-
-export interface TypewriterElementTextData {
-  node: Node;
-  textContent: string;
-}
-
-export type Options = TypewriterOptions | { [prop: string]: any };
-
 export default class Typewriter {
-  _default_options: TypewriterOptions;
-  _elements_db: Map<Element, TypewriterElementData>;
+  _default_options: Options;
+  _elements_db: Map<Element, ElementData>;
   constructor(options: Options) {
     this._default_options = parseOptions(options);
     this._elements_db = new Map();

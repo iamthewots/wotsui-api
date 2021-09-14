@@ -1,21 +1,11 @@
+import { Options } from "./types";
 import applyOptions from "./scripts/apply-options.js";
 import parseOptions from "./scripts/parse-options.js";
 
-export interface IntersectionHandlerOptions {
-  observeOnce?: boolean;
-  toggleOpacity?: boolean;
-  intersectionClass?: string;
-  noIntersectionClass?: string;
-  intersectionHandler?: (entry: IntersectionObserverEntry) => any;
-  noIntersectionHandler?: (entry: IntersectionObserverEntry) => any;
-}
-
-export type Options = { [prop: string]: any } | IntersectionHandlerOptions;
-
 export default class IntersectionHandler {
   _observer: IntersectionObserver;
-  _default_options: IntersectionHandlerOptions;
-  _options_list: Map<Element, IntersectionHandlerOptions>;
+  _default_options: Options;
+  _options_list: Map<Element, Options>;
 
   constructor(threshold = 0, options: Options) {
     this._observer = new IntersectionObserver(

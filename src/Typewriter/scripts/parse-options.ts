@@ -1,7 +1,7 @@
-import { Options, TypewriterOptions } from "../Typewriter";
+import { Options } from "../types";
 
 export default function parseOptions(obj: Options | undefined) {
-  const opt: TypewriterOptions = {
+  const opt: Options = {
     timePerChar: 25,
     ignorePunctuation: false,
   };

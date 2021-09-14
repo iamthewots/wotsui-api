@@ -1,8 +1,8 @@
-import { TypewriterElementData, TypewriterOptions } from "../Typewriter";
+import { ElementData, Options } from "../types";
 
 export default async function rewriteElement(
-  data: TypewriterElementData,
-  options: TypewriterOptions
+  data: ElementData,
+  options: Options
 ) {
   const { length, textData } = data;
   let i = 0;
@@ -24,7 +24,7 @@ export default async function rewriteElement(
   }
 }
 
-function getTimeToWait(char: string, options: TypewriterOptions) {
+function getTimeToWait(char: string, options: Options) {
   const tpc = options.timePerChar;
   if (options.ignorePunctuation) {
     return tpc;

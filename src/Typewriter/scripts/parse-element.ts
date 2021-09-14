@@ -1,10 +1,10 @@
-import { TypewriterElementTextData } from "../Typewriter";
+import { ElementTextData } from "../types";
 
 export default function parseElement(
   elOrNode: Element | Node,
   clear?: boolean
 ) {
-  let data: TypewriterElementTextData[] = [];
+  let data: ElementTextData[] = [];
   elOrNode.childNodes.forEach((node) => {
     if (!node.textContent) {
       return;

@@ -1,9 +1,9 @@
-import { IntersectionHandlerOptions, Options } from "../IntersectionHandler";
+import { Options } from "../types";
 
 export default function parseOptions(obj: {
   [prop: string]: any;
-}): IntersectionHandlerOptions {
-  const opt: IntersectionHandlerOptions = {};
+}): Options {
+  const opt: Options = {};
   if (!obj) {
     return opt;
   }
