@@ -1,4 +1,4 @@
-import { Options, ElementData } from "./types";
+import { Options, ElementData } from "./_types";
 import parseElement from "./scripts/parse-element.js";
 import parseOptions from "./scripts/parse-options.js";
 import writeElement from "./scripts/write-element.js";

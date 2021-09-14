@@ -1,4 +1,4 @@
-import { ElementTextData } from "../types";
+import { ElementTextData } from "../_types";
 
 export default function parseElement(
   elOrNode: Element | Node,
