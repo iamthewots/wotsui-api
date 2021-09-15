@@ -1,20 +1,31 @@
-import { IntersectionHandler, Typewriter } from "./dist/index.js";
+import { ClassManager, IntersectionHandler, Typewriter } from "./dist/index.js";
 
-const typ = document.getElementById("typewriter");
+const typEl = document.getElementById("typewriter");
 
 const typewriter = new Typewriter({
   timePerChar: 25,
   ignorePunctuation: true,
 });
-typewriter.initElement(typ);
+typewriter.initElement(typEl);
 setTimeout(() => {
-  typewriter.writeElement(typ, [25, 100]);
+  typewriter.writeElement(typEl, [25, 100]);
 }, 1000);
 
-const int = document.getElementById("intersection");
+const intEl = document.getElementById("intersection");
 const intHnd = new IntersectionHandler(0.5, {
   toggleOpacity: false,
   intersectionClass: "on-int",
   noIntersectionClass: "no-int",
 });
-intHnd.observe(int);
+intHnd.observe(intEl);
+
+const cmEl = document.getElementById("classmanager");
+const cM = new ClassManager(cmEl, {
+  target: "children",
+  queue: true,
+  interval: 250,
+});
+cM.add("cm");
+setTimeout(() => {
+  cM.remove("cm");
+}, 500);

@@ -20,3 +20,11 @@ body {
   background-color: azure;
   color: turquoise;
 }
+
+.cm {
+  background-color: bisque;
+}
+
+#classmanager > * {
+  transition: background-color 0.5s ease-out;
+}
