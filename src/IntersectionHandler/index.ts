@@ -1,4 +1,4 @@
-import { Options } from "./_types";
+import { Options } from "./types";
 import applyOptions from "./scripts/apply-options.js";
 import parseOptions from "./scripts/parse-options.js";
 

@@ -1,4 +1,4 @@
-import { Options } from "../_types";
+import { Options } from "../types";
 
 export default function parseOptions(obj: Options | undefined) {
   const opt: Options = {

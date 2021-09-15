@@ -1,4 +1,4 @@
-import { ElementData, Options } from "../_types";
+import { ElementData, Options } from "../types";
 
 export default async function rewriteElement(
   data: ElementData,
