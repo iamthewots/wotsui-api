@@ -42,4 +42,8 @@ export default class ClassManager {
       }
     }
   }
+
+  static parseOptions(options: Options) {
+    return parseOptions(options);
+  }
 }

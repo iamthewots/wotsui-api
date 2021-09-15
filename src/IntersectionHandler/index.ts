@@ -73,4 +73,8 @@ export default class IntersectionHandler {
       this._default_options = { ...this._default_options, ...opt };
     }
   }
+
+  static parseOptions(options: Options) {
+    return parseOptions(options);
+  }
 }

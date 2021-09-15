@@ -66,4 +66,8 @@ export default class Typewriter {
       node.textContent = textContent;
     });
   }
+
+  static parseOptions(options: Options) {
+    return parseOptions(options);
+  }
 }
