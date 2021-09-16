@@ -1,4 +1,4 @@
-import { TimeoutsMap, Options } from "./types";
+import { Method, TimeoutsMap, Options } from "./types";
 import parseOptions from "./scripts/parse-options.js";
 import manageClass from "./scripts/manage-class.js";
 
@@ -13,14 +13,14 @@ export default class ClassManager {
   }
 
   add(className: string, options?: Options) {
-    this.manage("add", className, options);
+    this.manage(Method.Add, className, options);
   }
 
   remove(className: string, options?: Options) {
-    this.manage("remove", className, options);
+    this.manage(Method.Remove, className, options);
   }
 
-  manage(method: "add" | "remove", className: string, options?: Options) {
+  manage(method: Method, className: string, options?: Options) {
     if (typeof className !== "string" || className === "") {
       return;
     }

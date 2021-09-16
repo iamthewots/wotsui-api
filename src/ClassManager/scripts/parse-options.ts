@@ -12,6 +12,7 @@ export default function parseOptions(obj: Options) {
   opt.invert = !!obj.invert;
   opt.invertAdd = !!obj.invertAdd;
   opt.invertRemove = !!obj.invertRemove;
+  opt.reactive = !!obj.reactive;
   if (typeof obj.target === "string") {
     if (obj.target === "self" || obj.target === "children") {
       opt.target = obj.target;

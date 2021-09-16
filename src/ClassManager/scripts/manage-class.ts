@@ -1,10 +1,10 @@
-import { TimeoutsMap, Options } from "../types";
+import { Method, TimeoutsMap, Options } from "../types";
 import parseOptions from "./parse-options.js";
 
 export default function manageClass(
   el: Element,
   className: string,
-  method: "add" | "remove",
+  method: Method,
   options: Options
 ) {
   if (
@@ -15,7 +15,7 @@ export default function manageClass(
     return;
   }
 
-  const fn = method === "add" ? "add" : "remove";
+  const fn = method === Method.Add ? "add" : "remove";
   const opt = parseOptions(options);
   const tims: number[] = [];
 
@@ -30,12 +30,14 @@ export default function manageClass(
     }
 
     for (let i = 0; i < children.length; i++) {
-      const index = getIndex(i, children.length, fn, opt);
+      const index = getIndex(i, children.length, method, opt);
       const child = children.item(index);
       if (!child) {
         continue;
       }
-
+      if (canBeSkipped(child, className, method, opt)) {
+        continue;
+      }
       if (!opt.queue) {
         child.classList[fn](className);
         continue;
@@ -54,12 +56,28 @@ export default function manageClass(
   return tims;
 }
 
-function getIndex(i: number, length: number, fn: string, opt: Options) {
+function getIndex(i: number, length: number, method: Method, opt: Options) {
   return opt.invert ||
-    (opt.invertAdd && fn === "add") ||
-    (opt.invertRemove && fn === "remove")
+    (opt.invertAdd && method === Method.Add) ||
+    (opt.invertRemove && method === Method.Remove)
     ? length - 1 - i
     : i;
+}
+
+function canBeSkipped(
+  el: Element,
+  className: string,
+  method: Method,
+  opt: Options
+) {
+  if (!opt.reactive) {
+    return false;
+  }
+  const hasClass = el.classList.contains(className);
+  return (
+    (hasClass && method === Method.Add) ||
+    (!hasClass && method === Method.Remove)
+  );
 }
 
 function getTimeToWait(i: number, opt: Options) {
