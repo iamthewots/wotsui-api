@@ -30,7 +30,8 @@ export default function manageClass(
     }
 
     for (let i = 0; i < children.length; i++) {
-      const child = children.item(i);
+      const index = getIndex(i, children.length, fn, opt);
+      const child = children.item(index);
       if (!child) {
         continue;
       }
@@ -51,6 +52,14 @@ export default function manageClass(
     }
   }
   return tims;
+}
+
+function getIndex(i: number, length: number, fn: string, opt: Options) {
+  return opt.invert ||
+    (opt.invertAdd && fn === "add") ||
+    (opt.invertRemove && fn === "remove")
+    ? length - 1 - i
+    : i;
 }
 
 function getTimeToWait(i: number, opt: Options) {

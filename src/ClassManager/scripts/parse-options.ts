@@ -9,6 +9,9 @@ export default function parseOptions(obj: Options) {
   }
 
   opt.queue = !!obj.queue;
+  opt.invert = !!obj.invert;
+  opt.invertAdd = !!obj.invertAdd;
+  opt.invertRemove = !!obj.invertRemove;
   if (typeof obj.target === "string") {
     if (obj.target === "self" || obj.target === "children") {
       opt.target = obj.target;
