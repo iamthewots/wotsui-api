@@ -24,8 +24,6 @@ const cM = new ClassManager(cmEl, {
   target: "children",
   queue: true,
   interval: 250,
+  invertAdd: true,
 });
 cM.add("cm");
-setTimeout(() => {
-  cM.remove("cm");
-}, 500);
