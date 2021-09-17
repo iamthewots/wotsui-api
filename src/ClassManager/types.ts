@@ -7,6 +7,8 @@ export interface Options {
   invertRemove?: boolean;
   reactive?: boolean;
   interval?: number | number[];
+  addIgnoresInterval?: boolean;
+  removeIgnoresInterval?: boolean;
 }
 
 export enum Method {

@@ -1,4 +1,4 @@
-import { Method, TimeoutsMap, Options } from "../types";
+import { Method, Options } from "../types.js";
 import parseOptions from "./parse-options.js";
 
 export default function manageClass(
@@ -45,12 +45,19 @@ export default function manageClass(
 
       // queue
       const ttw = getTimeToWait(i, opt);
-      const tim = setTimeout(() => {
-        if (child) {
-          child.classList[fn](className);
-        }
-      }, ttw);
-      tims.push(tim);
+      if (
+        (opt.addIgnoresInterval && method === Method.Add) ||
+        (opt.removeIgnoresInterval && Method.Remove)
+      ) {
+        child.classList[fn](className);
+      } else {
+        const tim = setTimeout(() => {
+          if (child) {
+            child.classList[fn](className);
+          }
+        }, ttw);
+        tims.push(tim);
+      }
     }
   }
   return tims;

@@ -1,4 +1,4 @@
-import { Method, TimeoutsMap, Options } from "./types";
+import { Method, TimeoutsMap, Options } from "./types.js";
 import parseOptions from "./scripts/parse-options.js";
 import manageClass from "./scripts/manage-class.js";
 

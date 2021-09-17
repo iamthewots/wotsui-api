@@ -23,6 +23,7 @@ export default class IntersectionHandler {
     observer: IntersectionObserver
   ) {
     entries.forEach((entry) => {
+      console.log(entry);
       const el = entry.target;
       const e = new CustomEvent(
         entry.isIntersecting ? "intersection" : "nointersection"
