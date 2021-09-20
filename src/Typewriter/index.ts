@@ -10,6 +10,10 @@ export default class Typewriter {
   }
 
   parseOptions(obj: { [prop: string]: any }) {
+    return Typewriter.parseOptions(obj);
+  }
+
+  static parseOptions(obj: { [prop: string]: any }) {
     const opt: Options = {
       timePerChar: 25,
     };

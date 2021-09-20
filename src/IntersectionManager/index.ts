@@ -12,6 +12,10 @@ export default class IntersectionManager {
   }
 
   parseOptions(obj: { [prop: string]: any }) {
+    return IntersectionManager.parseOptions(obj);
+  }
+
+  static parseOptions(obj: { [prop: string]: any }) {
     const opt: Options = {
       threshold: 1,
     };

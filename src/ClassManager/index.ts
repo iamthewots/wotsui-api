@@ -12,6 +12,10 @@ export default class ClassManager {
   }
 
   parseOptions(obj: { [prop: string]: any }) {
+    return ClassManager.parseOptions(obj);
+  }
+
+  static parseOptions(obj: { [prop: string]: any }) {
     const opt: Options = {
       target: Target.Self,
     };
