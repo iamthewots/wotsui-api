@@ -1,5 +1,5 @@
 export interface Options {
-  [prop: string]: any;
+  threshold: number;
   observeOnce?: boolean;
   toggleOpacity?: boolean;
   intersectionClass?: string;

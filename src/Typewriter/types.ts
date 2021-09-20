@@ -1,16 +1,15 @@
 export interface Options {
-  [prop: string]: any;
   timePerChar: number;
-  ignorePunctuation: boolean;
+  ignorePunctuation?: boolean;
 }
 
 export interface ElementData {
   options?: Options;
-  length: number;
-  textData: ElementTextData[];
+  textLength: number;
+  textData: ElementText[];
 }
 
-export interface ElementTextData {
+export interface ElementText {
   node: Node;
   textContent: string;
 }

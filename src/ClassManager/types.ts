@@ -1,19 +1,21 @@
 export interface Options {
-  [prop: string]: any;
-  target?: "self" | "children";
+  target: Target;
   queue?: boolean;
   invert?: boolean;
   invertAdd?: boolean;
   invertRemove?: boolean;
   reactive?: boolean;
   interval?: number | number[];
-  addIgnoresInterval?: boolean;
-  removeIgnoresInterval?: boolean;
+  ignoreIntervalOnAdd?: boolean;
+  ignoreIntervalOnRemove?: boolean;
+}
+
+export enum Target {
+  "Self",
+  "Children",
 }
 
 export enum Method {
   "Remove",
   "Add",
 }
-
-export type TimeoutsMap = Map<string, number[]>;
