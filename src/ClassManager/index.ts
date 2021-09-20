@@ -65,7 +65,7 @@ export default class ClassManager {
     const tims: number[] = [];
     if (opt.target === Target.Self) {
       this._el.classList[clFn](className);
-      this.emitEvent(method, className);
+      this.emitEvent(this._el, method, className);
     }
     if (opt.target === Target.Children) {
       const { children } = this._el;
@@ -75,12 +75,14 @@ export default class ClassManager {
 
       const ignoreInterval = this.shouldIgnoreInterval(method, opt);
       let longerTtw = 0;
+      let lastChild: Element;
       for (let i = 0; i < children.length; i++) {
         const ci = this.getChildIndex(i, children.length, method, opt);
         const child = children.item(ci);
         if (!child) {
           continue;
         }
+        lastChild = child;
         if (this.canBeSkipped(child, className, method, opt)) {
           continue;
         }
@@ -93,7 +95,6 @@ export default class ClassManager {
         if (ttw > longerTtw) {
           longerTtw = ttw;
         }
-        console.log(ttw);
         const tim = setTimeout(() => {
           if (child) {
             child.classList[clFn](className);
@@ -103,7 +104,7 @@ export default class ClassManager {
       }
       const eta = ignoreInterval ? 0 : longerTtw;
       const tim = setTimeout(() => {
-        this.emitEvent(method, className);
+        this.emitEvent(lastChild, method, className);
       }, eta);
       tims.push(tim);
     }
@@ -121,10 +122,13 @@ export default class ClassManager {
     }
   }
 
-  private emitEvent(method: Method, className: string) {
-    const eName = method === Method.Add ? "classapplied" : "classremoved";
+  private emitEvent(target: Element, method: Method, className: string) {
+    const eName = method === Method.Add ? "classadded" : "classremoved";
     const e = new CustomEvent(eName, {
-      detail: className,
+      detail: {
+        className,
+        target,
+      },
     });
     this._el.dispatchEvent(e);
   }
