@@ -2,14 +2,17 @@ import { ClassManager, IntersectionManager, Typewriter } from "./dist/index.js";
 
 const typEl = document.getElementById("typewriter");
 
-const typewriter = new Typewriter({
+const tpw = new Typewriter({
   timePerChar: 25,
   ignorePunctuation: true,
 });
-typewriter.initElement(typEl);
+tpw.initElement(typEl);
 setTimeout(() => {
-  typewriter.write(typEl);
+  tpw.write(typEl);
 }, 1000);
+typEl.addEventListener("restoredtext", () => {
+  console.log("Eureka");
+});
 
 const intEl = document.getElementById("intersection");
 const intMan = new IntersectionManager(0.5, {
@@ -29,4 +32,4 @@ const cM = new ClassManager(cmEl, {
 cM.add("cm");
 cmEl.addEventListener("classapplied", () => {
   cM.remove("cm");
-})
+});

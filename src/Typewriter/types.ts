@@ -9,6 +9,12 @@ export interface ElementData {
   textData: ElementText[];
 }
 
+export enum State {
+  "Clear",
+  "Writing",
+  "Initial",
+}
+
 export interface ElementText {
   node: Node;
   textContent: string;

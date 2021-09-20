@@ -1,12 +1,14 @@
-import { ElementData, ElementText, Options } from "./types";
+import { ElementData, ElementText, Options, State } from "./types.js";
 
 export default class Typewriter {
   _options: Options;
   _elements_db: Map<Element, ElementData>;
+  _elements_states: Map<Element, State>;
 
   constructor(options: Options) {
     this._options = this.parseOptions(options);
     this._elements_db = new Map();
+    this._elements_states = new Map();
   }
 
   parseOptions(obj: { [prop: string]: any }) {
@@ -42,6 +44,7 @@ export default class Typewriter {
       textLength,
       textData,
     });
+    this.changeState(el, clear ? State.Clear : State.Initial);
   }
 
   private getElementText(elOrNode: Element | Node, clear?: boolean) {
@@ -70,15 +73,25 @@ export default class Typewriter {
     if (!data) {
       return;
     }
+    const state = this._elements_states.get(el);
+    if (state === State.Writing || state === State.Initial) {
+      console.log("whoopsie", state);
+      return;
+    }
     const opt = this.getOptions(el);
     const { textLength, textData } = data;
     let i = 0;
+
+    this.changeState(el, State.Writing);
     for (const td of textData) {
       const { node, textContent } = td;
       if (!textContent || textContent === "") {
         continue;
       }
       for (const char of textContent) {
+        if (this._elements_states.get(el) !== State.Writing) {
+          return;
+        }
         node.textContent += char;
         const ttw = this.getTimeToWait(char, opt);
         await new Promise((resolve) => {
@@ -89,6 +102,7 @@ export default class Typewriter {
         i++;
       }
     }
+    this.changeState(el, State.Initial);
   }
 
   private getOptions(el: Element) {
@@ -131,6 +145,7 @@ export default class Typewriter {
       data.textData = textData;
       this._elements_db.set(el, data);
     }
+    this.changeState(el, State.Clear);
   }
 
   restore(el: Element) {
@@ -142,5 +157,18 @@ export default class Typewriter {
       const { node, textContent } = td;
       node.textContent = textContent;
     });
+    this.changeState(el, State.Initial);
+  }
+
+  private changeState(el: Element, state: State) {
+    this._elements_states.set(el, state);
+    const eName =
+      state === State.Clear
+        ? "clearedtext"
+        : state === State.Writing
+        ? "writingtext"
+        : "restoredtext";
+    const e = new CustomEvent(eName);
+    el.dispatchEvent(e);
   }
 }
