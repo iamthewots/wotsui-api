@@ -1,12 +1,12 @@
 import { Options } from "./types";
 
 export default class IntersectionManager {
-  _default_options: Options;
-  _options_list: Map<Element, Options>;
-  _observers_list: Map<number, IntersectionObserver>;
+  private _options: Options;
+  private _options_list: Map<Element, Options>;
+  private _observers_list: Map<number, IntersectionObserver>;
 
   constructor(options: Options) {
-    this._default_options = this.parseOptions(options);
+    this._options = this.parseOptions(options);
     this._observers_list = new Map();
     this._options_list = new Map();
   }
@@ -43,8 +43,30 @@ export default class IntersectionManager {
     return opt;
   }
 
+  updateOptions(options: Options, el?: Element) {
+    const opt = this.parseOptions(options);
+    if (el) {
+      const elOpt = this.getOptions(el);
+      const diffThr =
+        options.threshold && options.threshold !== elOpt.threshold;
+      if (diffThr) {
+        const obs = this.getObserver(elOpt.threshold);
+        obs.unobserve(el);
+      }
+      const newOpt = { ...elOpt, ...this.parseOptions(options) };
+      if (diffThr) {
+        this.observe(el, newOpt);
+      } else {
+        this._options_list.set(el, newOpt);
+      }
+      return newOpt;
+    }
+    this._options = { ...this._options, ...opt };
+    return this._options;
+  }
+
   observe(el: Element, options?: Options) {
-    let opt = this._default_options;
+    let opt = this._options;
     if (options) {
       opt = this.parseOptions(options);
     }
@@ -127,24 +149,9 @@ export default class IntersectionManager {
     if (el) {
       const opt = this._options_list.get(el);
       if (opt) {
-        return { ...this._default_options, ...opt };
+        return { ...this._options, ...opt };
       }
     }
-    return this._default_options;
-  }
-
-  updateOptions(el: Element, options: Options) {
-    const opt = this.getOptions(el);
-    const diffThr = options.threshold && options.threshold !== opt.threshold;
-    if (diffThr) {
-      const obs = this.getObserver(opt.threshold);
-      obs.unobserve(el);
-    }
-    const newOpt = this.parseOptions(options);
-    if (diffThr) {
-      this.observe(el, newOpt);
-    } else {
-      this._options_list.set(el, newOpt);
-    }
+    return this._options;
   }
 }

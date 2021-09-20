@@ -1,9 +1,9 @@
 import { Options, Target, Method } from "./types.js";
 
 export default class ClassManager {
-  _el: Element;
-  _options: Options;
-  _class_timeouts: Map<string, number[]>;
+  private _el: Element;
+  private _options: Options;
+  private _class_timeouts: Map<string, number[]>;
 
   constructor(el: Element, options: Options) {
     this._el = el;
@@ -42,6 +42,12 @@ export default class ClassManager {
       });
     }
     return opt;
+  }
+
+  updateOptions(obj: { [prop: string]: any }) {
+    const opt = this.parseOptions(obj);
+    this._options = { ...this._options, ...opt };
+    return this._options;
   }
 
   add(className: string, options?: Options) {

@@ -15,7 +15,7 @@ typEl.addEventListener("restoredtext", () => {
 });
 
 const intEl = document.getElementById("intersection");
-const intMan = new IntersectionManager(0.5, {
+const intMan = new IntersectionManager({
   toggleOpacity: false,
   intersectionClass: "on-int",
   noIntersectionClass: "no-int",

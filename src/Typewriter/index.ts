@@ -1,9 +1,9 @@
 import { ElementData, ElementText, Options, State } from "./types.js";
 
 export default class Typewriter {
-  _options: Options;
-  _elements_db: Map<Element, ElementData>;
-  _elements_states: Map<Element, State>;
+  private _options: Options;
+  private _elements_db: Map<Element, ElementData>;
+  private _elements_states: Map<Element, State>;
 
   constructor(options: Options) {
     this._options = this.parseOptions(options);
@@ -13,6 +13,21 @@ export default class Typewriter {
 
   parseOptions(obj: { [prop: string]: any }) {
     return Typewriter.parseOptions(obj);
+  }
+
+  updateOptions(obj: { [prop: string]: any }, el?: Element) {
+    const opt = this.parseOptions(obj);
+    if (el) {
+      const data = this._elements_db.get(el);
+      if (data) {
+        const options = { ...data.options, ...opt };
+        this._elements_db.set(el, { ...data, options });
+        return options;
+      }
+    }
+    const newOpt = { ...this._options, ...opt };
+    this._options = newOpt;
+    return this._options;
   }
 
   static parseOptions(obj: { [prop: string]: any }) {
@@ -170,5 +185,9 @@ export default class Typewriter {
         : "restoredtext";
     const e = new CustomEvent(eName);
     el.dispatchEvent(e);
+  }
+
+  getState(el: Element) {
+    return this._elements_states.get(el) || -1;
   }
 }
