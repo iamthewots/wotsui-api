@@ -3,12 +3,10 @@ import { ElementData, ElementText, Options, State } from "./types.js";
 export default class Typewriter {
   private _options: Options;
   private _elements_db: Map<Element, ElementData>;
-  private _elements_states: Map<Element, State>;
 
   constructor(options: Options) {
     this._options = this.parseOptions(options);
     this._elements_db = new Map();
-    this._elements_states = new Map();
   }
 
   parseOptions(obj: { [prop: string]: any }) {
@@ -58,6 +56,10 @@ export default class Typewriter {
       options: options ? this.parseOptions(options) : undefined,
       textLength,
       textData,
+      textState: {
+        state: clear ? State.Clear : State.Initial,
+        allowWriting: true,
+      },
     });
     this.changeState(el, clear ? State.Clear : State.Initial);
   }
@@ -88,24 +90,39 @@ export default class Typewriter {
     if (!data) {
       return;
     }
-    const state = this._elements_states.get(el);
-    if (state === State.Writing || state === State.Initial) {
+    const { textData, textLength, textState } = data;
+    textState.allowWriting = true;
+    if (textState.state === State.Initial) {
       return;
     }
+    if (textState.state === State.Partial) {
+      this.clear(el);
+    }
     const opt = this.getOptions(el);
-    const { textLength, textData } = data;
     let i = 0;
-
     this.changeState(el, State.Writing);
-    for (const td of textData) {
-      const { node, textContent } = td;
+
+    let n = textState.lastNodeIndex;
+    let c = textState.lastCharIndex;
+
+    for (; n < textData.length; n++) {
+      textState.lastNodeIndex = n;
+      if (!textState.allowWriting) {
+        this.handleStopWriting(el, n, c);
+        return;
+      }
+      const { node, textContent } = textData[n];
       if (!textContent || textContent === "") {
         continue;
       }
-      for (const char of textContent) {
-        if (this._elements_states.get(el) !== State.Writing) {
+
+      for (; c < textContent.length; c++) {
+        textState.lastCharIndex = c;
+        if (!textState.allowWriting) {
+          this.handleStopWriting(el, n, c);
           return;
         }
+        const char = textContent[c];
         node.textContent += char;
         const ttw = this.getTimeToWait(char, opt);
         await new Promise((resolve) => {
@@ -117,6 +134,16 @@ export default class Typewriter {
       }
     }
     this.changeState(el, State.Initial);
+  }
+
+  private handleStopWriting(el: Element, n: number, c: number) {
+    const data = this._elements_db.get(el);
+    if (!data) {
+      return;
+    }
+    const { textState } = data;
+    textState.lastNodeIndex = n;
+    textState.lastCharIndex = c;
   }
 
   private getOptions(el: Element) {
@@ -175,7 +202,11 @@ export default class Typewriter {
   }
 
   private changeState(el: Element, state: State) {
-    this._elements_states.set(el, state);
+    const data = this._elements_db.get(el);
+    if (!data) {
+      return;
+    }
+    data.textState.state = state;
     const eName =
       state === State.Clear
         ? "clearedtext"
@@ -187,6 +218,10 @@ export default class Typewriter {
   }
 
   getState(el: Element) {
-    return this._elements_states.get(el) || -1;
+    const data = this._elements_db.get(el);
+    if (!data) {
+      return -1;
+    }
+    return data.textState.state;
   }
 }
