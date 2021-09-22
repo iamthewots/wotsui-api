@@ -90,7 +90,6 @@ export default class Typewriter {
     }
     const state = this._elements_states.get(el);
     if (state === State.Writing || state === State.Initial) {
-      console.log("whoopsie", state);
       return;
     }
     const opt = this.getOptions(el);

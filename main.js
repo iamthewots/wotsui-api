@@ -1,4 +1,9 @@
-import { ClassManager, IntersectionManager, Typewriter } from "./dist/index.js";
+import {
+  ClassManager,
+  IntersectionManager,
+  ProgressManager,
+  Typewriter,
+} from "./dist/index.js";
 
 const typEl = document.getElementById("typewriter");
 
@@ -33,3 +38,37 @@ cM.add("cm");
 cmEl.addEventListener("classapplied", () => {
   cM.remove("cm");
 });
+
+const pmEl = document.getElementById("progressmanager");
+const pmSpan = pmEl.querySelector("span");
+pmSpan.innerText = "0";
+const btns = pmEl.querySelectorAll("button");
+const btn1 = btns[0];
+const btn2 = btns[1];
+const btn3 = btns[2];
+btn1.addEventListener("click", () => {
+  adv(-1);
+});
+btn2.addEventListener("click", () => {
+  adv(1);
+});
+let progress = 0;
+const proMan = new ProgressManager(pmEl, 50);
+proMan.addCheckpoint([3, 4, 25]);
+
+pmEl.addEventListener("progress", (e) => {
+  console.log(e.detail);
+});
+
+pmEl.addEventListener("25%", (e) => {
+  console.log("Cannavaro su Cannavacciuolo");
+});
+btn3.addEventListener("click", () => {
+  proMan.percent = 25;
+});
+
+function adv(n) {
+  progress += n;
+  proMan.index = progress;
+  pmSpan.innerText = `${progress}`;
+}
