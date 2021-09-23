@@ -1,4 +1,4 @@
-import { ElementData, ElementText, Options, State } from "./types.js";
+import { ElementData, ElementText, Options, Status } from "./types.js";
 
 export default class Typewriter {
   private _options: Options;
@@ -11,21 +11,6 @@ export default class Typewriter {
 
   parseOptions(obj: { [prop: string]: any }) {
     return Typewriter.parseOptions(obj);
-  }
-
-  updateOptions(obj: { [prop: string]: any }, el?: Element) {
-    const opt = this.parseOptions(obj);
-    if (el) {
-      const data = this._elements_db.get(el);
-      if (data) {
-        const options = { ...data.options, ...opt };
-        this._elements_db.set(el, { ...data, options });
-        return options;
-      }
-    }
-    const newOpt = { ...this._options, ...opt };
-    this._options = newOpt;
-    return this._options;
   }
 
   static parseOptions(obj: { [prop: string]: any }) {
@@ -43,25 +28,38 @@ export default class Typewriter {
     return opt;
   }
 
+  updateOptions(obj: { [prop: string]: any }, el?: Element) {
+    const opt = this.parseOptions(obj);
+    if (el) {
+      const data = this._elements_db.get(el);
+      if (data) {
+        const options = { ...data.options, ...opt };
+        this._elements_db.set(el, { ...data, options });
+        return options;
+      }
+    }
+    const newOpt = { ...this._options, ...opt };
+    this._options = newOpt;
+    return this._options;
+  }
+
   initElement(el: Element, options?: Options, clear = true) {
     if (!(el instanceof Element)) {
       return;
     }
     const textData = this.getElementText(el, clear);
-    let textLength = 0;
-    textData.forEach((td) => {
-      textLength += td.textContent.length;
-    });
+    const textLength = this.getElementLength(textData);
     this._elements_db.set(el, {
       options: options ? this.parseOptions(options) : undefined,
-      textLength,
       textData,
-      textState: {
-        state: clear ? State.Clear : State.Initial,
-        allowWriting: true,
+      textLength,
+      status: clear ? Status.Clear : Status.Initial,
+      writeState: {
+        isAllowed: true,
+        lastCharIndex: 0,
+        lastNodeIndex: 0,
       },
     });
-    this.changeState(el, clear ? State.Clear : State.Initial);
   }
 
   private getElementText(elOrNode: Element | Node, clear?: boolean) {
@@ -85,44 +83,39 @@ export default class Typewriter {
     return data;
   }
 
+  private getElementLength(textData: ElementText[]) {
+    let length = 0;
+    textData.forEach((td) => {
+      length += td.textContent.length;
+    });
+    return length;
+  }
+
   async write(el: Element) {
     const data = this._elements_db.get(el);
     if (!data) {
       return;
     }
-    const { textData, textLength, textState } = data;
-    textState.allowWriting = true;
-    if (textState.state === State.Initial) {
+    const { textData, status, writeState } = data;
+    writeState.isAllowed = true;
+    if (status === Status.Initial || status === Status.Writing) {
       return;
     }
-    if (textState.state === State.Partial) {
-      this.clear(el);
-    }
     const opt = this.getOptions(el);
-    let i = 0;
-    this.changeState(el, State.Writing);
+    this.changeStatus(el, Status.Writing);
 
-    let n = textState.lastNodeIndex;
-    let c = textState.lastCharIndex;
-
-    for (; n < textData.length; n++) {
-      textState.lastNodeIndex = n;
-      if (!textState.allowWriting) {
-        this.handleStopWriting(el, n, c);
-        return;
-      }
-      const { node, textContent } = textData[n];
+    for (let x = writeState.lastNodeIndex; x < textData.length; x++) {
+      const { node, textContent } = textData[x];
       if (!textContent || textContent === "") {
         continue;
       }
-
-      for (; c < textContent.length; c++) {
-        textState.lastCharIndex = c;
-        if (!textState.allowWriting) {
-          this.handleStopWriting(el, n, c);
+      for (let y = writeState.lastCharIndex; y < textContent.length; y++) {
+        if (!writeState.isAllowed) {
+          this.handleStopWriting(el, x, y);
           return;
         }
-        const char = textContent[c];
+
+        const char = textContent[y];
         node.textContent += char;
         const ttw = this.getTimeToWait(char, opt);
         await new Promise((resolve) => {
@@ -130,28 +123,40 @@ export default class Typewriter {
             resolve(null);
           }, ttw);
         });
-        i++;
       }
     }
-    this.changeState(el, State.Initial);
+    this.changeStatus(el, Status.Initial);
   }
 
-  private handleStopWriting(el: Element, n: number, c: number) {
+  private initWriting(el: Element) {
     const data = this._elements_db.get(el);
     if (!data) {
       return;
     }
-    const { textState } = data;
-    textState.lastNodeIndex = n;
-    textState.lastCharIndex = c;
+    const { status, writeState } = data;
+    writeState.isAllowed = true;
+    if (status === Status.Initial || status === Status.Writing) {
+      return;
+    }
+    const opt = this.getOptions(el);
+    this.changeStatus(el, Status.Writing);
+    return { data, opt };
   }
 
-  private getOptions(el: Element) {
+  private handleStopWriting(
+    el: Element,
+    lastNodeIndex: number,
+    lastCharIndex: number
+  ) {
     const data = this._elements_db.get(el);
-    if (!data || !data.options) {
-      return this._options;
+    if (!data) {
+      return;
     }
-    return { ...this._options, ...data.options };
+    if (data.status === Status.Writing) {
+      this.changeStatus(el, Status.Partial);
+      data.writeState.lastNodeIndex = lastNodeIndex;
+      data.writeState.lastCharIndex = lastCharIndex;
+    }
   }
 
   private getTimeToWait(char: string, opt: Options) {
@@ -176,6 +181,38 @@ export default class Typewriter {
     return tpc;
   }
 
+  private getOptions(el: Element) {
+    const data = this._elements_db.get(el);
+    if (!data || !data.options) {
+      return this._options;
+    }
+    return { ...this._options, ...data.options };
+  }
+
+  private changeStatus(el: Element, status: Status) {
+    const data = this._elements_db.get(el);
+    if (!data) {
+      return;
+    }
+    data.status = status;
+    const eName =
+      status === Status.Clear
+        ? "clearedtext"
+        : status === Status.Writing
+        ? "writingtext"
+        : "initialtext";
+    const e = new CustomEvent(eName);
+    el.dispatchEvent(e);
+  }
+
+  getStatus(el: Element) {
+    const data = this._elements_db.get(el);
+    if (!data) {
+      return -1;
+    }
+    return data.status;
+  }
+
   clear(el: Element, updateBeforeClear?: boolean) {
     const data = this._elements_db.get(el);
     if (!data) {
@@ -186,7 +223,9 @@ export default class Typewriter {
       data.textData = textData;
       this._elements_db.set(el, data);
     }
-    this.changeState(el, State.Clear);
+    this.changeStatus(el, Status.Clear);
+    data.writeState.lastNodeIndex = 0;
+    data.writeState.lastCharIndex = 0;
   }
 
   restore(el: Element) {
@@ -198,30 +237,15 @@ export default class Typewriter {
       const { node, textContent } = td;
       node.textContent = textContent;
     });
-    this.changeState(el, State.Initial);
+    this.changeStatus(el, Status.Initial);
+    data.writeState.isAllowed = false;
   }
 
-  private changeState(el: Element, state: State) {
+  stopWriting(el: Element) {
     const data = this._elements_db.get(el);
     if (!data) {
       return;
     }
-    data.textState.state = state;
-    const eName =
-      state === State.Clear
-        ? "clearedtext"
-        : state === State.Writing
-        ? "writingtext"
-        : "restoredtext";
-    const e = new CustomEvent(eName);
-    el.dispatchEvent(e);
-  }
-
-  getState(el: Element) {
-    const data = this._elements_db.get(el);
-    if (!data) {
-      return -1;
-    }
-    return data.textState.state;
+    data.writeState.isAllowed = false;
   }
 }

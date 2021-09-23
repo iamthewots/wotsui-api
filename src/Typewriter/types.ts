@@ -5,24 +5,24 @@ export interface Options {
 
 export interface ElementData {
   options?: Options;
-  textLength: number;
   textData: ElementText[];
-  textState: {
-    state: State;
-    allowWriting: boolean;
+  textLength: number;
+  status: Status;
+  writeState: {
+    isAllowed: boolean;
     lastNodeIndex: number;
     lastCharIndex: number;
   };
 }
 
-export enum State {
+export interface ElementText {
+  node: Node;
+  textContent: string;
+}
+
+export enum Status {
   "Clear",
   "Writing",
   "Partial",
   "Initial",
-}
-
-export interface ElementText {
-  node: Node;
-  textContent: string;
 }
