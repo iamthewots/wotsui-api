@@ -1,5 +1,6 @@
 export interface Options {
   timePerChar: number;
+  deleteSpeed?: number;
   ignorePunctuation?: boolean;
 }
 

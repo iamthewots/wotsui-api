@@ -3,20 +3,25 @@ import { ClassManager, IntersectionManager, Typewriter } from "./dist/index.js";
 // Typewriter
 const typEl = document.getElementById("typewriter");
 const tpw = new Typewriter({
-  timePerChar: 25,
-  ignorePunctuation: true,
+  timePerChar: 4,
+  deleteSpeed: 2,
+  ignorePunctuation: false,
 });
 tpw.initElement(typEl);
 const stopTpwBtn = document.getElementById("stop-tpw");
-const resumeTpwBtn = document.getElementById("resume-tpw");
+const writeTpwBtn = document.getElementById("write-tpw");
+const deleteTpwBtn = document.getElementById("delete-tpw");
 const clearTpwBtn = document.getElementById("clear-tpw");
 const restoreTpwBtn = document.getElementById("restore-tpw");
 
 stopTpwBtn.addEventListener("click", () => {
   tpw.stopWriting(typEl);
 });
-resumeTpwBtn.addEventListener("click", () => {
+writeTpwBtn.addEventListener("click", () => {
   tpw.write(typEl);
+});
+deleteTpwBtn.addEventListener("click", () => {
+  tpw.delete(typEl);
 });
 clearTpwBtn.addEventListener("click", () => {
   tpw.clear(typEl);

@@ -25,6 +25,11 @@ export default class Typewriter {
     if (typeof obj.timePerChar === "number") {
       opt.timePerChar = obj.timePerChar;
     }
+    if (typeof obj.deleteSpeed === "number") {
+      opt.deleteSpeed = obj.deleteSpeed;
+    } else {
+      opt.deleteSpeed = opt.timePerChar;
+    }
     return opt;
   }
 
@@ -92,19 +97,15 @@ export default class Typewriter {
   }
 
   async write(el: Element) {
-    const data = this._elements_db.get(el);
-    if (!data) {
+    const writingData = this.initWriting(el, false);
+    if (!writingData) {
       return;
     }
-    const { textData, status, writeState } = data;
-    writeState.isAllowed = true;
-    if (status === Status.Initial || status === Status.Writing) {
-      return;
-    }
-    const opt = this.getOptions(el);
-    this.changeStatus(el, Status.Writing);
+    const { data, opt } = writingData;
+    const { textData, writeState } = data;
 
     for (let x = writeState.lastNodeIndex; x < textData.length; x++) {
+      writeState.lastNodeIndex = x;
       const { node, textContent } = textData[x];
       if (!textContent || textContent === "") {
         continue;
@@ -125,17 +126,59 @@ export default class Typewriter {
         });
       }
     }
-    this.changeStatus(el, Status.Initial);
+    this.handleActionComplete(el, false);
   }
 
-  private initWriting(el: Element) {
+  async delete(el: Element) {
+    const writingData = this.initWriting(el, true);
+    if (!writingData) {
+      return;
+    }
+    const { data, opt } = writingData;
+    const { textData, writeState } = data;
+    for (let x = writeState.lastNodeIndex; x >= 0; x--) {
+      const { node, textContent } = textData[x];
+      if (!textContent || textContent === "" || !node.textContent) {
+        continue;
+      }
+
+      while (node.textContent && node.textContent.length > 0) {
+        if (!writeState.isAllowed) {
+          this.handleStopWriting(el, x, node.textContent.length);
+          return;
+        }
+        node.textContent = node.textContent.slice(0, -1);
+        writeState.lastCharIndex = node.textContent.length;
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(null);
+          }, opt.timePerChar);
+        });
+      }
+    }
+    this.handleActionComplete(el, true);
+  }
+
+  stopWriting(el: Element) {
+    const data = this._elements_db.get(el);
+    if (!data) {
+      return;
+    }
+    data.writeState.isAllowed = false;
+  }
+
+  private initWriting(el: Element, backspace: boolean) {
     const data = this._elements_db.get(el);
     if (!data) {
       return;
     }
     const { status, writeState } = data;
     writeState.isAllowed = true;
-    if (status === Status.Initial || status === Status.Writing) {
+    if (
+      (status === Status.Initial && !backspace) ||
+      (status === Status.Clear && backspace) ||
+      status === Status.Writing
+    ) {
       return;
     }
     const opt = this.getOptions(el);
@@ -159,6 +202,19 @@ export default class Typewriter {
     }
   }
 
+  private handleActionComplete(el: Element, backspace: boolean) {
+    const data = this._elements_db.get(el);
+    if (!data) {
+      return;
+    }
+    data.writeState.isAllowed = false;
+    const lni = data.textData.length - 1;
+    const lci = data.textData[lni].textContent.length - 1;
+    data.writeState.lastNodeIndex = backspace ? 0 : lni;
+    data.writeState.lastCharIndex = backspace ? 0 : lci;
+    this.changeStatus(el, backspace ? Status.Clear : Status.Initial);
+  }
+
   private getTimeToWait(char: string, opt: Options) {
     const tpc = opt.timePerChar;
     if (opt.ignorePunctuation) {
@@ -166,16 +222,16 @@ export default class Typewriter {
     }
     if (char.match(/\W/g)) {
       if (char.match(/[\@\{\}\[\]\(\)]/)) {
-        return tpc * 4;
+        return tpc * 3;
       }
       if (char.match(/[\,\>\<\%\$\€]/)) {
-        return tpc * 8;
+        return tpc * 6;
       }
       if (char.match(/[:;]/)) {
-        return tpc * 16;
+        return tpc * 9;
       }
       if (char.match(/[\.\?\!]/)) {
-        return tpc * 24;
+        return tpc * 12;
       }
     }
     return tpc;
@@ -223,9 +279,7 @@ export default class Typewriter {
       data.textData = textData;
       this._elements_db.set(el, data);
     }
-    this.changeStatus(el, Status.Clear);
-    data.writeState.lastNodeIndex = 0;
-    data.writeState.lastCharIndex = 0;
+    this.handleActionComplete(el, true);
   }
 
   restore(el: Element) {
@@ -237,15 +291,6 @@ export default class Typewriter {
       const { node, textContent } = td;
       node.textContent = textContent;
     });
-    this.changeStatus(el, Status.Initial);
-    data.writeState.isAllowed = false;
-  }
-
-  stopWriting(el: Element) {
-    const data = this._elements_db.get(el);
-    if (!data) {
-      return;
-    }
-    data.writeState.isAllowed = false;
+    this.handleActionComplete(el, false);
   }
 }
