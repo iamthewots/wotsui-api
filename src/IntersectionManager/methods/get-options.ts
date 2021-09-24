@@ -1,5 +1,4 @@
 import IntersectionManager from "../index";
-import { Options } from "../types";
 
 export default function getOptions(this: IntersectionManager, el: Element) {
   if (el) {

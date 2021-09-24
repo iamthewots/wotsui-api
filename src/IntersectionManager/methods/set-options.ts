@@ -7,21 +7,21 @@ export default function updateOptions(
   el?: Element
 ) {
   const opt = this.parseOptions(options);
-  if (el) {
-    const elOpt = this.getOptions(el);
-    const diffThr = options.threshold && options.threshold !== elOpt.threshold;
-    if (diffThr) {
-      const obs = this.getObserver(elOpt.threshold);
-      obs.unobserve(el);
-    }
-    const newOpt = { ...elOpt, ...this.parseOptions(options) };
-    if (diffThr) {
-      this.observe(el, newOpt);
-    } else {
-      this.optionsList.set(el, newOpt);
-    }
-    return newOpt;
+  if (!el) {
+    this.options = { ...this.options, ...opt };
+    return this.options;
   }
-  this.options = { ...this.options, ...opt };
-  return this.options;
+
+  const elOpt = this.getOptions(el);
+  const isThresholdDifferent =
+    opt.threshold && opt.threshold !== elOpt.threshold;
+  const newOpt = { ...elOpt, ...opt };
+  if (isThresholdDifferent) {
+    const obs = this.getObserver(elOpt.threshold);
+    obs.unobserve(el);
+    this.observe(el, newOpt);
+  } else {
+    this.optionsList.set(el, newOpt);
+  }
+  return newOpt;
 }
