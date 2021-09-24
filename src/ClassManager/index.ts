@@ -1,9 +1,9 @@
 import { Method, Options } from "./types.js";
-import clearClassTimeouts from "./methods/clearTimeouts.js";
-import emitEvent from "./methods/emitEvent.js";
-import manageClass from "./methods/manageClass.js";
-import parseOptions from "./methods/parseOptions.js";
-import updateOptions from "./methods/updateOptions.js";
+import clearClassTimeouts from "./methods/clear-timeouts.js";
+import emitEvent from "./methods/emit-events.js";
+import manageClass from "./methods/manage-class.js";
+import parseOptions from "./methods/parse-options.js";
+import updateOptions from "./methods/update-options.js";
 
 export default class ClassManager {
   protected el: Element;

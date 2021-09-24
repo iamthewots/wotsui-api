@@ -1,8 +1,8 @@
 import ClassManager from "../index.js";
 import { Method, Options, Target } from "../types.js";
-import getTimeToWait from "../helpers/getTimeToWait.js";
-import isElementSkipped from "../helpers/isElementSkipped.js";
-import isIntervalIgnored from "../helpers/isIntervalIgnored.js";
+import getTimeToWait from "../helpers/get-time-to-wait.js";
+import isElementSkipped from "../helpers/is-element-skipped.js";
+import isIntervalIgnored from "../helpers/is-interval-ignored.js";
 
 export default function manageClass(
   this: ClassManager,
