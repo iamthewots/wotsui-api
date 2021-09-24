@@ -1,4 +1,9 @@
-import { ClassManager, IntersectionManager, Typewriter } from "./dist/index.js";
+import {
+  ClassManager,
+  IntersectionManager,
+  Typewriter,
+} from "./dist/index.js";
+
 
 // Typewriter
 const typEl = document.getElementById("typewriter");
@@ -46,7 +51,7 @@ const cM = new ClassManager(cmEl, {
   interval: 250,
   invert: true,
 });
-cM.add("cm");
+cM.addClass("cm");
 cmEl.addEventListener("classapplied", () => {
-  cM.remove("cm");
+  cM.removeClass("cm");
 });
