@@ -1,4 +1,4 @@
-import ProgressManager from "../index";
+import ProgressManager from "../ProgressManager";
 
 export default function addCheckpoint(
   this: ProgressManager,
@@ -10,7 +10,6 @@ export default function addCheckpoint(
     });
   }
   if (typeof checkpoint === "number") {
-    const val = Math.min(Math.max(0, checkpoint), 100);
-    this._checkpoints.add(val);
+    this.checkpoints.add(checkpoint);
   }
 }

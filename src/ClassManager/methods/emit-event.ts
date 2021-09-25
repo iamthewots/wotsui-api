@@ -1,5 +1,5 @@
+import ClassManager from "../ClassManager";
 import { Method } from "../types.js";
-import ClassManager from "../index.js";
 
 export default function emitEvent(
   this: ClassManager,
@@ -7,12 +7,12 @@ export default function emitEvent(
   method: Method,
   className: string
 ) {
-  const eventName = method === Method.Add ? "classadded" : "classremoved";
-  const e = new CustomEvent(eventName, {
+  const eName = method === Method.Add ? "classadded" : "classremoved";
+  const e = new CustomEvent(eName, {
     detail: {
       className,
-      target
-    }
+      target,
+    },
   });
   this.el.dispatchEvent(e);
 }

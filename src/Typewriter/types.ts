@@ -1,29 +1,29 @@
 export interface Options {
   timePerChar: number;
-  deleteSpeed?: number;
+  deleteMultiplier?: number;
   ignorePunctuation?: boolean;
 }
 
 export interface ElementData {
   options?: Options;
-  textData: ElementText[];
+  textNodes: ElementNode[];
   textLength: number;
   status: Status;
-  writeState: {
+  changeStatus: {
     isAllowed: boolean;
     lastNodeIndex: number;
     lastCharIndex: number;
   };
 }
 
-export interface ElementText {
+export interface ElementNode {
   node: Node;
   textContent: string;
 }
 
 export enum Status {
   "Clear",
-  "Writing",
+  "Active",
   "Partial",
-  "Initial",
+  "Initial"
 }

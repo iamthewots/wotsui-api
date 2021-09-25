@@ -1,17 +1,17 @@
 export interface Options {
-  direction?: Direction;
+  evaluation: Evaluation;
   autoReset?: boolean;
 }
 
-export enum Direction {
+export enum Evaluation {
   "Linear",
   "Precise",
   "Bidirectional",
 }
 
-export interface ProgressStatistics {
+export interface Statistics {
   index: number;
   length: number;
-  delta: number;
-  percent: number;
+  errorMargin: number;
+  progressPercent: number;
 }
