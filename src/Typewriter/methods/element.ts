@@ -1,57 +1,49 @@
-import { ElementNode, Options, Status } from "../types.js";
-import Typewriter from "../Typewriter";
+import { ElementData, Options, Status, TextNodeData } from "../types.js";
+import Typewriter from "../Typewriter.js";
 
-export function initElement(
-  this: Typewriter,
-  el: Element,
-  options?: Options,
-  clear?: boolean
-) {
-  if (!(el instanceof Element)) {
-    return;
+export function initElement(this: Typewriter, el: Element, options?: Options) {
+  if (!el || !(el instanceof Element)) {
+    throw new Error("Invalid element");
   }
-
-  const opt = options ? this.parseOptions(options) : undefined;
-  const textNodes = getElementTextNodes(el, clear);
-  const textLength = getElementTextLength(textNodes);
-  this.elementsData.set(el, {
-    options: opt,
-    textNodes,
-    textLength,
-    status: clear ? Status.Clear : Status.Initial,
-    changeStatus: {
-      isAllowed: true,
-      lastNodeIndex: 0,
-      lastCharIndex: 0,
-    },
-  });
+  const textNodesData = getElementTextNodesData(el);
+  const charsCount = getElementCharsCount(textNodesData);
+  const status = Status.Initial;
+  const lastNodeIndex = textNodesData.length - 1;
+  const lastCharIndex = textNodesData[lastNodeIndex].length - 1;
+  const elData: ElementData = {
+    options: options ? this.parseOptions(options) : undefined,
+    textNodesData,
+    charsCount,
+    status,
+    lastNodeIndex,
+    lastCharIndex,
+  };
+  this.elementsData.set(el, elData);
 }
 
-export function getElementTextNodes(elOrNode: Element | Node, clear?: boolean) {
-  let textNodes: ElementNode[] = [];
-  elOrNode.childNodes.forEach((node) => {
+function getElementTextNodesData(src: Element | Node) {
+  let tnd: TextNodeData[] = [];
+  src.childNodes.forEach((node) => {
     if (!node.textContent) {
       return;
     }
     if (node.nodeType === 3) {
-      textNodes.push({
+      tnd.push({
         node,
-        textContent: node.textContent,
+        text: node.textContent,
+        length: node.textContent.length,
       });
-      if (clear) {
-        node.textContent = "";
-      }
     } else {
-      textNodes = textNodes.concat(getElementTextNodes(node, clear));
+      tnd = tnd.concat(getElementTextNodesData(node));
     }
   });
-  return textNodes;
+  return tnd;
 }
 
-export function getElementTextLength(textNodes: ElementNode[]) {
+function getElementCharsCount(textNodesData: TextNodeData[]) {
   let length = 0;
-  textNodes.forEach((node) => {
-    length += node.textContent.length;
+  textNodesData.forEach((textNode) => {
+    length += textNode.length;
   });
   return length;
 }

@@ -1,18 +1,16 @@
 import { Status } from "../types.js";
-import Typewriter from "../Typewriter";
+import Typewriter from "../Typewriter.js";
 
-export default function clearText(
-  this: Typewriter,
-  el: Element,
-  updateBeforeClear?: boolean
-) {
-  const textNodes = this.getElementTextNodes(el, true);
-  this.setStatus(el, Status.Clear);
-  if (updateBeforeClear) {
-    const data = this.elementsData.get(el);
-    if (!data) {
-      return;
-    }
-    this.elementsData.set(el, { ...data, textNodes });
+export default function clearText(this: Typewriter, el: Element) {
+  const elData = this.elementsData.get(el);
+  if (!elData) {
+    return;
   }
+  const { textNodesData } = elData;
+  textNodesData.forEach(tnd => {
+    tnd.node.textContent = "";
+  });
+  elData.status = Status.Clear;
+  elData.lastNodeIndex = 0;
+  elData.lastCharIndex = 0;
 }

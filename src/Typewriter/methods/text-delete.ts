@@ -1,46 +1,46 @@
-import { Status } from "../types.js";
+import { Options, Status } from "../types.js";
 import Typewriter from "../Typewriter";
 
 export default async function deleteText(this: Typewriter, el: Element) {
-  const data = this.elementsData.get(el);
-  if (!data) {
+  const elData = this.elementsData.get(el);
+  if (!elData || elData.status === Status.InProgress) {
     return;
   }
 
-  const { textNodes, status, changeStatus } = data;
-  const options = this.getOptions(el);
-  changeStatus.isAllowed = true;
-  if (status === Status.Active) {
-    return;
-  }
-
-  for (let x = changeStatus.lastNodeIndex; x >= 0; x--) {
-    const { node, textContent } = textNodes[x];
-    if (!textContent || textContent === "") {
+  elData.status = Status.InProgress;
+  const opt = this.getOptions(el);
+  const { textNodesData, lastNodeIndex } = elData;
+  let i = lastNodeIndex;
+  for (; i >= 0; i--) {
+    const { node, text } = textNodesData[i];
+    if (!text || text === "" || !node.textContent) {
       continue;
     }
-    for (let y = changeStatus.lastCharIndex; y >= 0; y++) {
-      if (!changeStatus.isAllowed) {
-        changeStatus.lastNodeIndex = x;
-        changeStatus.lastCharIndex = y;
-        this.setStatus(el, Status.Partial);
+
+    while (node.textContent && node.textContent.length > 0) {
+      if (elData.status !== Status.InProgress) {
+        elData.lastNodeIndex = i;
+        elData.lastCharIndex = node.textContent.length - 1;
         return;
       }
 
-      if (!node.textContent) {
-        continue;
-      }
-      node.textContent = node.textContent?.slice(1, -1);
-      const timeToWait = options.timePerChar * (options.deleteMultiplier || 1);
+      node.textContent = node.textContent.slice(0, -1);
+      const ttw = getTimeToWait(opt);
       await new Promise((resolve) => {
         setTimeout(() => {
           resolve(null);
-        }, timeToWait);
+        }, ttw);
       });
     }
   }
-  changeStatus.isAllowed = false;
-  changeStatus.lastNodeIndex = 0;
-  changeStatus.lastCharIndex = 0;
-  this.setStatus(el, Status.Clear);
+  elData.status = Status.Clear;
+  elData.lastNodeIndex = 0;
+  elData.lastCharIndex = 0;
+}
+
+function getTimeToWait(opt: Options) {
+  if (!opt.deleteModifier) {
+    return opt.timePerChar;
+  }
+  return opt.timePerChar * opt.deleteModifier;
 }

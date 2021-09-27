@@ -1,9 +1,10 @@
-import { Options } from "../types.js";
+import { Options } from "../types";
 import Typewriter from "../Typewriter.js";
 
 export function parseOptions(obj: { [prop: string]: any } | Options) {
   const opt: Options = {
     timePerChar: 25,
+    deleteModifier: 0.5,
   };
   if (typeof obj !== "object") {
     return opt;
@@ -13,40 +14,33 @@ export function parseOptions(obj: { [prop: string]: any } | Options) {
   if (typeof obj.timePerChar === "number") {
     opt.timePerChar = obj.timePerChar;
   }
-  if (typeof obj.deleteMultiplier === "number") {
-    opt.deleteMultiplier = obj.deleteMultiplier;
+  if (typeof obj.deleteModifier === "number") {
+    opt.deleteModifier = obj.deleteModifier;
   } else {
-    opt.deleteMultiplier = opt.timePerChar;
+    opt.deleteModifier = opt.timePerChar;
   }
   return opt;
 }
 
-export function getOptions(this: Typewriter, el?: Element) {
-  if (el) {
-    const data = this.elementsData.get(el);
-    if (!data || !data.options) {
-      return this.options;
-    }
-    return { ...this.options, ...data.options };
+export function getOptions(this: Typewriter, el: Element) {
+  const data = this.elementsData.get(el);
+  if (!data || !data.options) {
+    return this.options;
   }
-  return this.options;
+  return { ...this.options, ...data.options };
 }
 
-export function setOptions(
-  this: Typewriter,
-  options: { [prop: string]: any } | Options,
-  el?: Element
-) {
+export function setOptions(this: Typewriter, options: Options, el: Element) {
   const opt = this.parseOptions(options);
-  if (el) {
-    const data = this.elementsData.get(el);
-    if (data) {
-      const newElementOpt = { ...data.options, ...opt };
-      this.elementsData.set(el, { ...data, options: newElementOpt });
-      return newElementOpt;
-    }
+  if (!el) {
+    this.options = { ...this.options, ...opt };
+    return this.options;
   }
-  const newOpt = { ...this.options, ...opt };
-  this.options = newOpt;
-  return this.options;
+  const data = this.elementsData.get(el);
+  if (!data) {
+    return;
+  }
+  const newOpt = { ...data.options, ...opt };
+  data.options = newOpt;
+  return newOpt;
 }

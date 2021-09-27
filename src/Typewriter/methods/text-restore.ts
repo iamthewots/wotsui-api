@@ -1,14 +1,16 @@
 import { Status } from "../types.js";
-import Typewriter from "../Typewriter";
+import Typewriter from "../Typewriter.js";
 
 export default function restoreText(this: Typewriter, el: Element) {
-  const data = this.elementsData.get(el);
-  if (!data) {
+  const elData = this.elementsData.get(el);
+  if (!elData) {
     return;
   }
-
-  data.textNodes.forEach((tn) => {
-    tn.node.textContent = tn.textContent;
+  const { textNodesData } = elData;
+  textNodesData.forEach((tnd) => {
+    tnd.node.textContent = tnd.text;
   });
-  this.setStatus(el, Status.Initial);
+  elData.status = Status.Initial;
+  elData.lastNodeIndex = textNodesData.length - 1;
+  elData.lastCharIndex = textNodesData[textNodesData.length - 1].length - 1;
 }

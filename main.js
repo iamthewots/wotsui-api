@@ -8,8 +8,8 @@ import {
 // Typewriter
 const typEl = document.getElementById("typewriter");
 const tpw = new Typewriter({
-  timePerChar: 4,
-  deleteSpeed: 2,
+  timePerChar: 10,
+  deleteModifier: 0.25,
   ignorePunctuation: false,
 });
 tpw.initElement(typEl);
@@ -20,19 +20,19 @@ const clearTpwBtn = document.getElementById("clear-tpw");
 const restoreTpwBtn = document.getElementById("restore-tpw");
 
 stopTpwBtn.addEventListener("click", () => {
-  tpw.stopWriting(typEl);
+  tpw.stopText(typEl);
 });
 writeTpwBtn.addEventListener("click", () => {
-  tpw.write(typEl);
+  tpw.writeText(typEl);
 });
 deleteTpwBtn.addEventListener("click", () => {
-  tpw.delete(typEl);
+  tpw.deleteText(typEl);
 });
 clearTpwBtn.addEventListener("click", () => {
-  tpw.clear(typEl);
+  tpw.clearText(typEl);
 });
 restoreTpwBtn.addEventListener("click", () => {
-  tpw.restore(typEl);
+  tpw.restoreText(typEl);
 });
 
 // Intersection Manager
@@ -51,7 +51,7 @@ const cM = new ClassManager(cmEl, {
   interval: 250,
   invert: true,
 });
-cM.addClass("cm");
+cM.add("cm");
 cmEl.addEventListener("classapplied", () => {
-  cM.removeClass("cm");
+  cM.remove("cm");
 });
