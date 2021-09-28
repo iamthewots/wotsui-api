@@ -2,14 +2,14 @@ import { Options, Status } from "../types.js";
 import Typewriter from "../Typewriter.js";
 
 export default async function writeText(this: Typewriter, el: Element) {
-  const elData = this.elementsData.get(el);
-  if (!elData || elData.status === Status.InProgress) {
+  const data = this.elementsData.get(el);
+  if (!data || data.status === Status.InProgress) {
     return;
   }
 
-  elData.status = Status.InProgress;
+  data.status = Status.InProgress;
   const opt = this.getOptions(el);
-  const { textNodesData, lastNodeIndex, lastCharIndex } = elData;
+  const { textNodesData, lastNodeIndex, lastCharIndex } = data;
   for (let i = 0; i < textNodesData.length; i++) {
     const { node, text } = textNodesData[i];
     if (!text || text === "" || i < lastNodeIndex) {
@@ -21,9 +21,9 @@ export default async function writeText(this: Typewriter, el: Element) {
       j < text.length;
       j++
     ) {
-      if (elData.status !== Status.InProgress) {
-        elData.lastNodeIndex = i;
-        elData.lastCharIndex = j;
+      if (data.status !== Status.InProgress) {
+        data.lastNodeIndex = i;
+        data.lastCharIndex = j;
         return;
       }
 
@@ -37,9 +37,9 @@ export default async function writeText(this: Typewriter, el: Element) {
       });
     }
   }
-  elData.status = Status.Initial;
-  elData.lastNodeIndex = textNodesData.length - 1;
-  elData.lastNodeIndex =
+  data.status = Status.Initial;
+  data.lastNodeIndex = textNodesData.length - 1;
+  data.lastNodeIndex =
     textNodesData[textNodesData.length - 1].text.length - 1;
 }
 

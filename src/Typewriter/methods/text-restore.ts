@@ -2,15 +2,15 @@ import { Status } from "../types.js";
 import Typewriter from "../Typewriter.js";
 
 export default function restoreText(this: Typewriter, el: Element) {
-  const elData = this.elementsData.get(el);
-  if (!elData) {
+  const data = this.elementsData.get(el);
+  if (!data) {
     return;
   }
-  const { textNodesData } = elData;
+  const { textNodesData } = data;
   textNodesData.forEach((tnd) => {
     tnd.node.textContent = tnd.text;
   });
-  elData.status = Status.Initial;
-  elData.lastNodeIndex = textNodesData.length - 1;
-  elData.lastCharIndex = textNodesData[textNodesData.length - 1].length - 1;
+  data.status = Status.Initial;
+  data.lastNodeIndex = textNodesData.length - 1;
+  data.lastCharIndex = textNodesData[textNodesData.length - 1].length - 1;
 }

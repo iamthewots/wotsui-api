@@ -10,7 +10,7 @@ export function initElement(this: Typewriter, el: Element, options?: Options) {
   const status = Status.Initial;
   const lastNodeIndex = textNodesData.length - 1;
   const lastCharIndex = textNodesData[lastNodeIndex].length - 1;
-  const elData: ElementData = {
+  const data: ElementData = {
     options: options ? this.parseOptions(options) : undefined,
     textNodesData,
     charsCount,
@@ -18,32 +18,32 @@ export function initElement(this: Typewriter, el: Element, options?: Options) {
     lastNodeIndex,
     lastCharIndex,
   };
-  this.elementsData.set(el, elData);
+  this.elementsData.set(el, data);
 }
 
 function getElementTextNodesData(src: Element | Node) {
-  let tnd: TextNodeData[] = [];
+  let textNodesData: TextNodeData[] = [];
   src.childNodes.forEach((node) => {
     if (!node.textContent) {
       return;
     }
     if (node.nodeType === 3) {
-      tnd.push({
+      textNodesData.push({
         node,
         text: node.textContent,
         length: node.textContent.length,
       });
     } else {
-      tnd = tnd.concat(getElementTextNodesData(node));
+      textNodesData = textNodesData.concat(getElementTextNodesData(node));
     }
   });
-  return tnd;
+  return textNodesData;
 }
 
 function getElementCharsCount(textNodesData: TextNodeData[]) {
-  let length = 0;
+  let charsCount = 0;
   textNodesData.forEach((textNode) => {
-    length += textNode.length;
+    charsCount += textNode.length;
   });
-  return length;
+  return charsCount;
 }
