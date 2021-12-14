@@ -1,6 +1,6 @@
 {
   "name": "wotsui-api",
-  "version": "0.0.12",
+  "version": "0.0.5",
   "description": "Various API for WotsUI framework",
   "main": "dist/index.js",
   "files": [
