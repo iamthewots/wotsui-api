@@ -1,17 +1,17 @@
 export interface Options {
-  evaluation: Evaluation;
-  autoReset?: boolean;
+    evaluation: Evaluation;
+    autoReset?: boolean;
 }
 
 export enum Evaluation {
-  "Linear",
-  "Precise",
-  "Bidirectional",
+    "Linear",
+    "Precise",
+    "Bidirectional",
 }
 
 export interface Statistics {
-  index: number;
-  length: number;
-  errorMargin: number;
-  progressPercent: number;
+    index: number;
+    length: number;
+    errorMargin: number;
+    progressPercent: number;
 }

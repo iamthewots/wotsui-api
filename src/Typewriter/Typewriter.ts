@@ -8,23 +8,23 @@ import writeText from "./methods/text-write.js";
 import { ElementData, Options } from "./types";
 
 export default class Typewriter {
-  protected options: Options;
-  protected elementsData: Map<Element, ElementData> = new Map();
+    protected options: Options;
+    protected elementsData: Map<Element, ElementData> = new Map();
 
-  constructor(options: Options) {
-    this.options = this.parseOptions(options);
-  }
+    constructor(options: Options) {
+        this.options = this.parseOptions(options);
+    }
 
-  parseOptions = parseOptions;
-  static parseOptions = parseOptions;
-  getOptions = getOptions;
-  setOptions = setOptions;
+    parseOptions = parseOptions;
+    static parseOptions = parseOptions;
+    getOptions = getOptions;
+    setOptions = setOptions;
 
-  clearText = clearText;
-  deleteText = deleteText;
-  restoreText = restoreText;
-  stopText = stopText;
-  writeText = writeText;
+    clearText = clearText;
+    deleteText = deleteText;
+    restoreText = restoreText;
+    stopText = stopText;
+    writeText = writeText;
 
-  initElement = initElement;
+    initElement = initElement;
 }

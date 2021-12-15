@@ -1,33 +1,35 @@
 {
-  "name": "wotsui-api",
-  "version": "1.0.1",
-  "description": "Various API for WotsUI framework",
-  "main": "dist/index.js",
-  "files": [
-    "dist/*"
-  ],
-  "types": "dist/types.d.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "preversion": "tsc",
-    "build": "tsc && tsc --outdir dist/ --declaration --emitDeclarationOnly --outFile dist/types.d.ts"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/iamthewots/wotsui-api.git"
-  },
-  "keywords": [
-    "API",
-    "browser",
-    "util"
-  ],
-  "author": "Leonardo Scarfò",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/iamthewots/wotsui-api/issues"
-  },
-  "homepage": "https://github.com/iamthewots/wotsui-api#readme",
-  "devDependencies": {
-    "typescript": "^4.4.2"
-  }
+    "name": "wotsui-api",
+    "version": "1.0.1",
+    "description": "Various API for WotsUI framework",
+    "main": "dist/index.js",
+    "files": [
+        "dist/*"
+    ],
+    "types": "dist/types.d.ts",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "preversion": "tsc",
+        "build": "tsc",
+        "pretty": "prettier --tab-width 4 --write '**/*.ts'"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/iamthewots/wotsui-api.git"
+    },
+    "keywords": [
+        "API",
+        "browser",
+        "util"
+    ],
+    "author": "Leonardo Scarfò",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/iamthewots/wotsui-api/issues"
+    },
+    "homepage": "https://github.com/iamthewots/wotsui-api#readme",
+    "devDependencies": {
+        "prettier": "^2.5.1",
+        "typescript": "^4.4.2"
+    }
 }
