@@ -10,14 +10,14 @@ import {
     parseOptions,
     setOptions,
 } from "./methods/options.js";
-import { Options } from "./types";
+import { IntersectionManagerOptions } from "./types";
 
 export default class IntersectionManager {
-    protected options: Options;
-    protected optionsList: Map<Element, Options> = new Map();
+    protected options: IntersectionManagerOptions;
+    protected optionsList: Map<Element, IntersectionManagerOptions> = new Map();
     protected observersList: Map<number, IntersectionObserver> = new Map();
 
-    constructor(options: Options) {
+    constructor(options: IntersectionManagerOptions) {
         this.options = this.parseOptions(options);
     }
 

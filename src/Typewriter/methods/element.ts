@@ -1,7 +1,7 @@
-import { ElementData, Options, Status, TextNodeData } from "../types.js";
+import { ElementData, TypewriterOptions, Status, TextNodeData } from "../types.js";
 import Typewriter from "../Typewriter.js";
 
-export function initElement(this: Typewriter, el: Element, options?: Options) {
+export function initElement(this: Typewriter, el: Element, options?: TypewriterOptions) {
     if (!el || !(el instanceof Element)) {
         throw new Error("Invalid element");
     }

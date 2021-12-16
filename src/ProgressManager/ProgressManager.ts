@@ -1,4 +1,4 @@
-import { Options, Statistics } from "./types";
+import { ProgressManagerOptions, Statistics } from "./types";
 import { getOptions, parseOptions, setOptions } from "./methods/options.js";
 import addCheckpoint from "./methods/add-checkpoint.js";
 import emitEvent from "./methods/emit-event.js";
@@ -15,12 +15,12 @@ import { clearHistory, clearProgress } from "./methods/clear.js";
 
 export default class ProgressManager {
     protected el?: Element;
-    protected options: Options;
+    protected options: ProgressManagerOptions;
     protected statistics: Statistics;
     protected checkpoints: Set<number> = new Set();
     protected history: number[] = [];
 
-    constructor(length: number, options: Options, el?: Element) {
+    constructor(length: number, options: ProgressManagerOptions, el?: Element) {
         if (typeof length !== "number") {
             throw new Error("Invalid length");
         }

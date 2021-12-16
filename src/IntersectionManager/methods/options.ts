@@ -1,8 +1,8 @@
 import IntersectionManager from "../IntersectionManager";
-import { Options } from "../types";
+import { IntersectionManagerOptions } from "../types";
 
-export function parseOptions(obj: { [prop: string]: any } | Options) {
-    const opt: Options = {
+export function parseOptions(obj: { [prop: string]: any } | IntersectionManagerOptions) {
+    const opt: IntersectionManagerOptions = {
         threshold: 1,
     };
     if (typeof obj !== "object") {
@@ -41,7 +41,7 @@ export function getOptions(this: IntersectionManager, el: Element) {
 
 export function setOptions(
     this: IntersectionManager,
-    options: { [prop: string]: any } | Options,
+    options: { [prop: string]: any } | IntersectionManagerOptions,
     el?: Element
 ) {
     if (typeof options !== "object" || (el && !this.optionsList.get(el))) {

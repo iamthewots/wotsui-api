@@ -1,4 +1,4 @@
-import { Options } from "../types";
+import { IntersectionManagerOptions } from "../types";
 import IntersectionManager from "../IntersectionManager";
 
 export function getObserver(this: IntersectionManager, threshold: number) {
@@ -41,7 +41,7 @@ export function observerCallback(
 export function observe(
     this: IntersectionManager,
     el: Element,
-    options?: Options
+    options?: IntersectionManagerOptions
 ) {
     if (!(el instanceof Element)) {
         return;

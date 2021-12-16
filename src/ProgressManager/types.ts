@@ -1,4 +1,4 @@
-export interface Options {
+export interface ProgressManagerOptions {
     evaluation: Evaluation;
     autoReset?: boolean;
 }

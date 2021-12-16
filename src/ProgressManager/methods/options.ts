@@ -1,11 +1,11 @@
 import ProgressManager from "../ProgressManager";
-import { Evaluation, Options } from "../types.js";
+import { Evaluation, ProgressManagerOptions } from "../types.js";
 
 export function parseOptions(
     this: ProgressManager,
-    obj: { [prop: string]: any } | Options
+    obj: { [prop: string]: any } | ProgressManagerOptions
 ) {
-    const opt: Options = {
+    const opt: ProgressManagerOptions = {
         evaluation: Evaluation.Linear,
     };
     if (typeof obj !== "object") {
@@ -20,13 +20,13 @@ export function parseOptions(
     return opt;
 }
 
-export function getOptions(this: ProgressManager): Options {
+export function getOptions(this: ProgressManager): ProgressManagerOptions {
     return this.options;
 }
 
 export function setOptions(
     this: ProgressManager,
-    options: { [prop: string]: any } | Options
+    options: { [prop: string]: any } | ProgressManagerOptions
 ) {
     if (typeof options !== "object") {
         return;

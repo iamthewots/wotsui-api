@@ -1,8 +1,8 @@
-import { Options } from "../types";
+import { TypewriterOptions } from "../types";
 import Typewriter from "../Typewriter.js";
 
-export function parseOptions(obj: { [prop: string]: any } | Options) {
-    const opt: Options = {
+export function parseOptions(obj: { [prop: string]: any } | TypewriterOptions) {
+    const opt: TypewriterOptions = {
         timePerChar: 25,
         deleteModifier: 0.5,
     };
@@ -30,7 +30,7 @@ export function getOptions(this: Typewriter, el: Element) {
     return { ...this.options, ...data.options };
 }
 
-export function setOptions(this: Typewriter, options: Options, el: Element) {
+export function setOptions(this: Typewriter, options: TypewriterOptions, el: Element) {
     const opt = this.parseOptions(options);
     if (!el) {
         this.options = { ...this.options, ...opt };

@@ -1,4 +1,4 @@
-import { Options, Status } from "../types.js";
+import { TypewriterOptions, Status } from "../types.js";
 import Typewriter from "../Typewriter";
 
 export default async function deleteText(this: Typewriter, el: Element) {
@@ -38,7 +38,7 @@ export default async function deleteText(this: Typewriter, el: Element) {
     data.lastCharIndex = 0;
 }
 
-function getTimeToWait(opt: Options) {
+function getTimeToWait(opt: TypewriterOptions) {
     if (!opt.deleteModifier) {
         return opt.timePerChar;
     }

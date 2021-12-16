@@ -1,4 +1,4 @@
-export interface Options {
+export interface IntersectionManagerOptions {
     threshold: number;
     observeOnce?: boolean;
     toggleOpacity?: boolean;

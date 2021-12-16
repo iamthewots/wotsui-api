@@ -1,4 +1,4 @@
-import { Options, Status } from "../types.js";
+import { TypewriterOptions, Status } from "../types.js";
 import Typewriter from "../Typewriter.js";
 
 export default async function writeText(this: Typewriter, el: Element) {
@@ -43,7 +43,7 @@ export default async function writeText(this: Typewriter, el: Element) {
         textNodesData[textNodesData.length - 1].text.length - 1;
 }
 
-function getTimeToWait(char: string, opt: Options) {
+function getTimeToWait(char: string, opt: TypewriterOptions) {
     const tpc = opt.timePerChar;
     if (opt.ignorePunctuation) {
         return tpc;

@@ -1,11 +1,11 @@
-export declare interface Options {
+export declare interface TypewriterOptions {
     timePerChar: number;
     deleteModifier: number;
     ignorePunctuation?: boolean;
 }
 
 export declare interface ElementData {
-    options?: Options;
+    options?: TypewriterOptions;
     textNodesData: TextNodeData[];
     charsCount: number;
     status: Status;

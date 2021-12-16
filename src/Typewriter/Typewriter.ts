@@ -5,13 +5,13 @@ import deleteText from "./methods/text-delete.js";
 import restoreText from "./methods/text-restore.js";
 import stopText from "./methods/text-stop.js";
 import writeText from "./methods/text-write.js";
-import { ElementData, Options } from "./types";
+import { ElementData, TypewriterOptions } from "./types";
 
 export default class Typewriter {
-    protected options: Options;
+    protected options: TypewriterOptions;
     protected elementsData: Map<Element, ElementData> = new Map();
 
-    constructor(options: Options) {
+    constructor(options: TypewriterOptions) {
         this.options = this.parseOptions(options);
     }
 
