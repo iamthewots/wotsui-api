@@ -1,6 +1,6 @@
 {
     "name": "wotsui-api",
-    "version": "1.0.1",
+    "version": "1.2.0",
     "description": "Various API for WotsUI framework",
     "main": "dist/index.js",
     "files": [
@@ -10,7 +10,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "preversion": "tsc",
-        "build": "tsc",
+        "build": "tsc && tsc -p tsconfig.build.json",
         "pretty": "prettier --tab-width 4 --write '**/*.ts'"
     },
     "repository": {

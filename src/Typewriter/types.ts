@@ -1,10 +1,10 @@
-export interface Options {
+export declare interface Options {
     timePerChar: number;
     deleteModifier: number;
     ignorePunctuation?: boolean;
 }
 
-export interface ElementData {
+export declare interface ElementData {
     options?: Options;
     textNodesData: TextNodeData[];
     charsCount: number;
@@ -13,13 +13,13 @@ export interface ElementData {
     lastCharIndex: number;
 }
 
-export interface TextNodeData {
+export declare interface TextNodeData {
     node: Node;
     text: string;
     length: number;
 }
 
-export enum Status {
+export declare enum Status {
     "Clear",
     "InProgress",
     "Partial",
